@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace     http://www.globaltrainingcenter.com/
-// @version      0.4
+// @version      0.5
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright     2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -23,7 +23,6 @@
 // ==OpenUserJS==
 // @author gtcjorge
 // ==/OpenUserJS==
-
 
 var classesfound = [];
 var dict = [];
@@ -405,6 +404,10 @@ GM_xmlhttpRequest({
                     onload: function(response) {
                         if (response.status === 200) {
                             var json = JSON.parse(response.responseText);
+                            // console.log(json);
+                            var duedate = Date.parse(json.ActivityDate).toString('MM/dd/yyyy');
+
+
 
 
                             $("#tsk5").val(json.Subject);
@@ -428,7 +431,9 @@ GM_xmlhttpRequest({
                                 return $(this).val() === json.Seminar_Hours__c;
                             }).prop('selected', true);
 
-
+                            var today = Date.parse('today').toString('MM/dd/yyyy');
+                            $("#00N80000004fJvU").val(today);
+                            $("#tsk4").val(duedate);
                             // GM_log(json);
                         }
                     }
