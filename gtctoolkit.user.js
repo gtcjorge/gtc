@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace     http://www.globaltrainingcenter.com/
-// @version      0.2
+// @version      0.4
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright     2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -9,8 +9,8 @@
 // @include        https://na8.salesforce.com/00T/e?who_id=*
 // @require      https://code.jquery.com/jquery-3.1.1.slim.min.js
 // @require      http://globaltrainingcenter.com/date.js
-// @updateURL    @updateURL http://www.globaltrainingcenter.com/gtctoolkit.user.js
-// @downloadURL  @updateURL http://www.globaltrainingcenter.com/gtctoolkit.user.js
+// @updateURL    @updateURL https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
+// @downloadURL  @updateURL https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
 // @connect      www.globaltrainingcenter.com
 // @connect      globaltrainingcenter.com
 // @connect      login.salesforce.com
