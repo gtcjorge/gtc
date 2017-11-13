@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace     http://www.globaltrainingcenter.com/
-// @version      0.5
+// @version      0.6
 // @description  Tools
 // @author       Jorge Dominguez
-// @copyright     2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
-// @license       GPL-3.0+; http://www.gnu.org/licenses/gpl-3.0.txt
-// @include        https://na8.salesforce.com/00T/e?who_id=*
+// @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
+// @license      GPL-3.0+; http://www.gnu.org/licenses/gpl-3.0.txt
+// @include      https://na8.salesforce.com/00T/e?who_id=*
 // @require      https://code.jquery.com/jquery-3.1.1.slim.min.js
 // @require      http://globaltrainingcenter.com/date.js
 // @updateURL    @updateURL https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
@@ -46,6 +46,9 @@ function fIns(inst) {
     var instructor;
     switch (inst) {
         case "Arthur O'Meara":
+            instructor = "AO";
+            break;
+        case "Arthur O&#039;Meara":
             instructor = "AO";
             break;
         case "Catherine J Petersen":
@@ -314,6 +317,7 @@ function go() {
                             if (response.status === 200) {
                                 // console.log(response.responseText);
                                 var json = JSON.parse(response.responseText);
+
                                 if (!json.length || json.length < 1)
                                     alert("No results please enter manually");
                                 if (json.length === 1)
