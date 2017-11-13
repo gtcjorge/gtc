@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         GTC Toolkit
-// @namespace     http://www.globaltrainingcenter.com/
+// @namespace    http://www.globaltrainingcenter.com/
 // @version      0.6
 // @description  Tools
 // @author       Jorge Dominguez
