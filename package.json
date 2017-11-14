@@ -1,0 +1,24 @@
+{
+  "name": "gtc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gtctoolkit.user.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gtcjorge/gtc.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gtcjorge/gtc/issues"
+  },
+  "homepage": "https://github.com/gtcjorge/gtc#readme",
+  "devDependencies": {
+    "eslint": "^4.11.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0"
+  }
+}
