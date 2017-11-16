@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      0.8
+// @version      0.9
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -49,6 +49,7 @@ instructors['George W Thompson'] = 'GT';
 instructors['Trudy Wilson'] = 'TW';
 
 let getkey;
+let injected = 0;
 
 function fIns(inst) {
   return instructors[inst];
@@ -91,7 +92,6 @@ function sfsubject(co) {
   let cityname;
   let description;
   let halforfull;
-  let time;
   let type;
   type = 'seminar';
   // class info
@@ -146,7 +146,7 @@ function sfsubject(co) {
     [cityname] = c[3].split(', ');
   }
 
-  $('#tsk5').val(`${cityname} ${classname}`);
+  $('#tsk5').val(`${cityname} ${classname}`).css('border', '3px solid green');
 
 
   switch (c[1]) {
@@ -191,13 +191,16 @@ function sfsubject(co) {
 
 
   const ins = fIns(c[16]);
-  $('option').filter((i, e) => $(e).val() === ins).prop('selected', true);
-  $('option').filter((i, e) => $(e).val() === description).prop('selected', true);
-  $('option').filter((i, e) => $(e).val() === time).prop('selected', true);
-  $('option').filter((i, e) => $(e).val() === hoursfield).prop('selected', true);
-  $('#00N80000004fJvF').val(price);
-  $('#00N80000004fJvU').val(registrationfield);
-  $('#tsk4').val(datefield);
+
+  $('option').filter((i, e) => $(e).val() === ins).prop('selected', true).parent()
+    .css('border', '3px solid green');
+  $('option').filter((i, e) => $(e).val() === description).prop('selected', true).parent()
+    .css('border', '3px solid green');
+  $('option').filter((i, e) => $(e).val() === hoursfield).prop('selected', true).parent()
+    .css('border', '3px solid green');
+  $('#00N80000004fJvF').val(price).css('border', '3px solid green');
+  $('#00N80000004fJvU').val(registrationfield).css('border', '3px solid green');
+  $('#tsk4').val(datefield).css('border', '3px solid green');
 }
 
 function insertclass(classo) {
@@ -232,7 +235,8 @@ function go() {
           let tsource = source;
           if (source === 'CoWorker') tsource = 'Co-Worker';
           if (source === 'WebSearch') tsource = 'Web Search';
-          $('option').filter((i, e) => $(e).val() === tsource).prop('selected', true);
+          $('option').filter((i, e) => $(e).val() === tsource).prop('selected', true).parent()
+            .css('border', '3px solid green');
         }
       }
     },
@@ -311,8 +315,10 @@ function go() {
       }
     },
   });
+  if (injected === 1) return;
 
   $('#head_1_ep').next().find('tbody').prepend('<tr id=\'itemsrow\'><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Other ID</label></td><td class=\'dataCol col02\'><input type=\'text\' id=\'otherid\' /></td></tr>');
+
 
   $('#otherid').on('change', (k) => {
     const otherid = $(k.target).val().trim();
@@ -348,7 +354,7 @@ function go() {
                 if (response3.status === 200) {
                   const json2 = JSON.parse(response3.responseText);
                   const duedate = Date.parse(json2.ActivityDate).toString('MM/dd/yyyy');
-                  $('#tsk5').val(json2.Subject);
+                  $('#tsk5').val(json2.Subject).css('border', '3px solid green');
                   $('#00NC0000005CE6d > option').filter((i, e) => $(e).val() === json2.Seminar_Description__c).prop('selected', true);
                   $('#00N80000004fJvF').val(json2.Seminar_Price__c);
                   $('#00N80000004fK21 > option').filter((i, e) => $(e).val() === json2.Instructor__c).prop('selected', true);
@@ -364,6 +370,16 @@ function go() {
       },
     });
   });
+
+  const scriptversion = GM_info.script.version;
+  let tab = $('#AllTab_Tab').after('<li id="scriptversion"><li>');
+  tab = $('#scriptversion');
+  tab.css('float', 'right');
+  tab.css('color', '#0068B3');
+  tab.css('font-weight', 'bold');
+  tab.text(`GTC Script: v${scriptversion}`);
+
+  injected = 1;
 }
 
 getkey = () => {
@@ -385,6 +401,4 @@ getkey = () => {
   });
 };
 
-$(document).ready(() => {
-  go();
-});
+$(document).ready(() => { go(); });
