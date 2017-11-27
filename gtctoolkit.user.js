@@ -46,7 +46,7 @@ instructors['Paul Patterson'] = 'PP';
 instructors['George W Thompson'] = 'GT';
 instructors['Trudy Wilson'] = 'TW';
 
-const token = '00D80000000avld!AQ8AQAqj6atE.btOpJngy4JbIKOhy3ix0ygsx0StLE9zcnHw.0E8yON15.HsD.EGJeX953SfefSBLP2WGDq2ZJXCCMxbXy_Q';
+const token = '00D80000000avld!AQ8AQETW_098aBf9HPWrEppPHKjn333sLMZaDtY9IwMiTiJjAvGdxczhM1Sd9VkVtG513HFGDC0evOU3jQeVcFuL0MjVUw4N';
 
 let injected = 0;
 
