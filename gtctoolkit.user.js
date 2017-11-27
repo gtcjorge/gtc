@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      0.9
+// @version      1.0
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -14,8 +14,6 @@
 // @connect      www.globaltrainingcenter.com
 // @connect      globaltrainingcenter.com
 // @connect      login.salesforce.com
-// @grant GM_setValue
-// @grant GM_getValue
 // @grant GM_xmlhttpRequest
 // @grant GM_log
 // ==/UserScript==
@@ -48,7 +46,8 @@ instructors['Paul Patterson'] = 'PP';
 instructors['George W Thompson'] = 'GT';
 instructors['Trudy Wilson'] = 'TW';
 
-let getkey;
+const token = '00D80000000avld!AQ8AQAqj6atE.btOpJngy4JbIKOhy3ix0ygsx0StLE9zcnHw.0E8yON15.HsD.EGJeX953SfefSBLP2WGDq2ZJXCCMxbXy_Q';
+
 let injected = 0;
 
 function fIns(inst) {
@@ -221,7 +220,7 @@ function go() {
     method: 'get',
     url: urlcontactquery,
     headers: {
-      Authorization: `OAuth ${GM_getValue('token')}`,
+      Authorization: `OAuth ${token}`,
       'Content-Type': 'application/json',
     },
     onload(response) {
@@ -247,7 +246,7 @@ function go() {
     method: 'get',
     url: urlr,
     headers: {
-      Authorization: `OAuth ${GM_getValue('token')}`,
+      Authorization: `OAuth ${token}`,
       'Content-Type': 'application/json',
     },
     onload(response) {
@@ -289,10 +288,11 @@ function go() {
           });
         });
         const json = JSON.parse(response.responseText);
-        // console.log(json);
         $(json.records).each((index, item) => {
-          const name = item.Name.split('-')[0];
+          let name = item.Name.split('-')[0];
           const date = item.Name.split('-')[1];
+          if (name.split('Session: ')[1]) [, name] = name.split('Session: ');
+          console.log(name);
           const classo = {
             name,
             date,
@@ -310,7 +310,7 @@ function go() {
         console.log(ec);
         if (ec === 'INVALID_SESSION_ID') { needsession = true; }
         if (needsession) {
-          getkey();
+          alert('invalid session');
         }
       }
     },
@@ -325,7 +325,7 @@ function go() {
     GM_xmlhttpRequest({
       method: 'GET',
       headers: {
-        Authorization: `OAuth ${GM_getValue('token')}`,
+        Authorization: `OAuth ${token}`,
         'Content-Type': 'application/json',
       },
       url: `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Id,Subject FROM Task where WhoId = '${otherid}' and Seminar_Price__c != NULL`,
@@ -346,7 +346,7 @@ function go() {
             GM_xmlhttpRequest({
               method: 'GET',
               headers: {
-                Authorization: `OAuth ${GM_getValue('token')}`,
+                Authorization: `OAuth ${token}}`,
                 'Content-Type': 'application/json',
               },
               url: `https://na8.salesforce.com/services/data/v38.0/sobjects/Task/${id2}`,
@@ -382,23 +382,5 @@ function go() {
   injected = 1;
 }
 
-getkey = () => {
-  GM_xmlhttpRequest({
-    method: 'POST',
-    url: 'https://login.salesforce.com/services/oauth2/token',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    data: 'grant_type=password&client_id=3MVG9CVKiXR7Ri5oTacFEDc70dveabo7ofE9G1sr_6XO03Qk1mM9Hq1StahY9EqbOsBhcm3PEb6FzhkW3HVKz&client_secret=4221779451511459233&username=team%40globaltrainingcenter.com&password=550gtce4',
-    onload(response) {
-      console.log(response);
-      const jr = JSON.parse(response.responseText);
-      const token = jr.access_token;
-      console.log(token);
-      GM_setValue('token', token);
-      go();
-    },
-  });
-};
 
 $(document).ready(() => { go(); });
