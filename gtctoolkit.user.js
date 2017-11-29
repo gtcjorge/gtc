@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      1.1
+// @version      1.2
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -16,6 +16,8 @@
 // @connect      login.salesforce.com
 // @grant GM_xmlhttpRequest
 // @grant GM_log
+// @grant GM_setValue
+// @grant GM_getValue
 // ==/UserScript==
 
 const classesfound = [];
@@ -216,11 +218,13 @@ function go() {
   const urlr = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Name from pymt__Shopping_Cart_Item__c WHERE pymt__Contact__c = '${id}' AND CreatedDate = LAST_N_DAYS:60`;
   const urlcontactquery = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Order_Source__c from Contact WHERE Id = '${id}'`;
 
+
+  // bring in order source
   GM_xmlhttpRequest({
     method: 'get',
     url: urlcontactquery,
     headers: {
-      Authorization: `OAuth ${token}`,
+      Authorization: `OAuth ${GM_getValue('token')}`,
       'Content-Type': 'application/json',
     },
     onload(response) {
@@ -240,13 +244,14 @@ function go() {
       }
     },
   });
+  // finish bring in order source
 
-
+  // get shopping cart items
   GM_xmlhttpRequest({
     method: 'get',
     url: urlr,
     headers: {
-      Authorization: `OAuth ${token}`,
+      Authorization: `OAuth ${GM_getValue('token')}`,
       'Content-Type': 'application/json',
     },
     onload(response) {
@@ -255,15 +260,21 @@ function go() {
         $('#classes').append('<option id=\'blank\'></option>');
         $('#classes').on('change', (k) => {
           if (!$(k.target).find(':selected').val() || $(k.target).find(':selected').val() === '') { return; }
-          const classselected = `${dict[$(k.target).find(':selected').val().split(' - ')[0]]} - ${$(k.target).find(':selected').val().split(' - ')[1]}`;
-          // console.log('http://www.globaltrainingcenter.com/classapi.php?sf='+classselected);
+          let cdate = $(k.target).find(':selected').val().split(' - ')[1];
+          if (cdate.split(' ').length > 2) {
+            const splits = cdate.split(' ');
+            cdate = `${splits[0]} ${splits[1]}`;
+          }
+          const classselected = `${dict[$(k.target).find(':selected').val().split(' - ')[0]]} - ${cdate}`;
+          console.log(`http://www.globaltrainingcenter.com/classapi.php?sf=${classselected}`);
           GM_xmlhttpRequest({
             method: 'GET',
             url: `http://www.globaltrainingcenter.com/classapi.php?sf=${classselected}`,
             onload(response2) {
               if (response2.status === 200) {
-                // console.log(response.responseText);
+                // console.log(response2.responseText);
                 const json = JSON.parse(response2.responseText);
+                // console.log(json);
                 if (!json.length || json.length < 1) { alert('No results please enter manually'); }
                 if (json.length === 1) { insertclass(json[0]); }
                 if (json.length > 1) {
@@ -325,7 +336,7 @@ function go() {
     GM_xmlhttpRequest({
       method: 'GET',
       headers: {
-        Authorization: `OAuth ${token}`,
+        Authorization: `OAuth ${GM_getValue('token')}`,
         'Content-Type': 'application/json',
       },
       url: `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Id,Subject FROM Task where WhoId = '${otherid}' and Seminar_Price__c != NULL`,
@@ -346,7 +357,7 @@ function go() {
             GM_xmlhttpRequest({
               method: 'GET',
               headers: {
-                Authorization: `OAuth ${token}}`,
+                Authorization: `OAuth ${GM_getValue('token')}}`,
                 'Content-Type': 'application/json',
               },
               url: `https://na8.salesforce.com/services/data/v38.0/sobjects/Task/${id2}`,
@@ -382,5 +393,30 @@ function go() {
   injected = 1;
 }
 
+function getkey() {
+  console.log('getting key');
+  GM_xmlhttpRequest({
+    method: 'POST',
+    url: 'https://login.salesforce.com/services/oauth2/token',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    data: 'grant_type=password&client_id=3MVG9CVKiXR7Ri5oTacFEDc70dveabo7ofE9G1sr_6XO03Qk1mM9Hq1StahY9EqbOsBhcm3PEb6FzhkW3HVKz&client_secret=4221779451511459233&username=team%40globaltrainingcenter.com&password=550e4gtc',
+    onload(response) {
+      // console.log(response);
+      const jr = JSON.parse(response.responseText);
+      const token = jr.access_token;
+      console.log(token);
+      GM_setValue('token', token);
+      go();
+    },
+  });
+}
 
-$(document).ready(() => { go(); });
+$(document).ready(() => {
+  if (GM_getValue('token') === 'undefined') {
+    getkey();
+  } else {
+    go();
+  }
+});
