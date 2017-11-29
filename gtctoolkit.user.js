@@ -49,6 +49,7 @@ instructors['George W Thompson'] = 'GT';
 instructors['Trudy Wilson'] = 'TW';
 
 let injected = 0;
+let getkey;
 
 function fIns(inst) {
   return instructors[inst];
@@ -388,7 +389,7 @@ function go() {
   injected = 1;
 }
 
-function getkey() {
+getkey = () => {
   console.log('getting key');
   GM_xmlhttpRequest({
     method: 'POST',
@@ -406,7 +407,7 @@ function getkey() {
       go();
     },
   });
-}
+};
 
 $(document).ready(() => {
   if (GM_getValue('token') === 'undefined') {
