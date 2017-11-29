@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      1.2
+// @version      1.3
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -47,8 +47,6 @@ instructors['Michael Laden'] = 'ML';
 instructors['Paul Patterson'] = 'PP';
 instructors['George W Thompson'] = 'GT';
 instructors['Trudy Wilson'] = 'TW';
-
-const token = '00D80000000avld!AQ8AQETW_098aBf9HPWrEppPHKjn333sLMZaDtY9IwMiTiJjAvGdxczhM1Sd9VkVtG513HFGDC0evOU3jQeVcFuL0MjVUw4N';
 
 let injected = 0;
 
@@ -212,9 +210,6 @@ function insertclass(classo) {
 function go() {
   const id = $('#who_id').attr('value');
 
-  // $("#tsk6").val(GM_getValue("token"));
-
-
   const urlr = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Name from pymt__Shopping_Cart_Item__c WHERE pymt__Contact__c = '${id}' AND CreatedDate = LAST_N_DAYS:60`;
   const urlcontactquery = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Order_Source__c from Contact WHERE Id = '${id}'`;
 
@@ -321,7 +316,7 @@ function go() {
         console.log(ec);
         if (ec === 'INVALID_SESSION_ID') { needsession = true; }
         if (needsession) {
-          alert('invalid session');
+          getkey();
         }
       }
     },
