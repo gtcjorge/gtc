@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      1.3
+// @version      1.4
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -350,11 +350,11 @@ function go() {
           $('#tasksfromotherid').on('change', () => {
             // https://na8.salesforce.com/services/data/v38.0/sobjects/Task/00TC000005D1RLjMAN
             const id2 = $('#tasksfromotherid option:selected').attr('id');
+            const tok = GM_getValue('token');
             GM_xmlhttpRequest({
               method: 'GET',
               headers: {
-                Authorization: `OAuth ${GM_getValue('token')}}`,
-                'Content-Type': 'application/json',
+                Authorization: `OAuth ${tok}`,
               },
               url: `https://na8.salesforce.com/services/data/v38.0/sobjects/Task/${id2}`,
               onload(response3) {
@@ -362,13 +362,16 @@ function go() {
                   const json2 = JSON.parse(response3.responseText);
                   const duedate = Date.parse(json2.ActivityDate).toString('MM/dd/yyyy');
                   $('#tsk5').val(json2.Subject).css('border', '3px solid green');
-                  $('#00NC0000005CE6d > option').filter((i, e) => $(e).val() === json2.Seminar_Description__c).prop('selected', true);
-                  $('#00N80000004fJvF').val(json2.Seminar_Price__c);
-                  $('#00N80000004fK21 > option').filter((i, e) => $(e).val() === json2.Instructor__c).prop('selected', true);
-                  $('#00NC0000005CEDy > option').filter((i, e) => $(e).val() === json2.Seminar_Hours__c).prop('selected', true);
+                  $('#00NC0000005CE6d > option').filter((i, e) => $(e).val() === json2.Seminar_Description__c).prop('selected', true).parent()
+                    .css('border', '3px solid green');
+                  $('#00N80000004fJvF').val(json2.Seminar_Price__c).css('border', '3px solid green');
+                  $('#00N80000004fK21 > option').filter((i, e) => $(e).val() === json2.Instructor__c).prop('selected', true).parent()
+                    .css('border', '3px solid green');
+                  $('#00NC0000005CEDy > option').filter((i, e) => $(e).val() === json2.Seminar_Hours__c).prop('selected', true).parent()
+                    .css('border', '3px solid green');
                   const today = Date.parse('today').toString('MM/dd/yyyy');
-                  $('#00N80000004fJvU').val(today);
-                  $('#tsk4').val(duedate);
+                  $('#00N80000004fJvU').val(today).css('border', '3px solid green');
+                  $('#tsk4').val(duedate).css('border', '3px solid green');
                 }
               },
             });
@@ -413,6 +416,7 @@ $(document).ready(() => {
   if (GM_getValue('token') === 'undefined') {
     getkey();
   } else {
+    // console.log(GM_getValue('token'));
     go();
   }
 });
