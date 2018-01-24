@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      1.4
+// @version      1.5
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -36,6 +36,7 @@ dict['NAFTA Rules of Origin'] = 'NAFTA Rules of Origin';
 dict['Tariff Classification'] = 'Tariff Classification';
 dict['Trans Pacific Partnership'] = 'TPP';
 dict['Trans Pacific Partnership Dec 15....NEW'] = 'TPP';
+dict['Importing 201'] = 'Importing 201';
 const classes = [];
 const instructors = [];
 instructors['Arthur O\'Meara'] = 'AO';
@@ -131,6 +132,9 @@ function sfsubject(co) {
   } else if (c[1] === 'Export to Canada') {
     halforfull = 'half';
     classname = 'Canada';
+  } else if (c[1] === 'Importing 201') {
+    halforfull = 'full';
+    classname = 'Import 201';
   } else if (c[1] === 'Road to C-TPAT Certification') {
     halforfull = 'half';
     classname = 'C-TPAT';
