@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      1.5
+// @version      1.6
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
 // @license      GPL-3.0+; http://www.gnu.org/licenses/gpl-3.0.txt
 // @include      https://na8.salesforce.com/00T/e?who_id=*
+// @include      https://na8.salesforce.com/home/home.jsp
 // @require      https://code.jquery.com/jquery-3.1.1.slim.min.js
 // @require      http://globaltrainingcenter.com/date.js
 // @updateURL    @updateURL https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
@@ -15,7 +16,6 @@
 // @connect      globaltrainingcenter.com
 // @connect      login.salesforce.com
 // @grant GM_xmlhttpRequest
-// @grant GM_log
 // @grant GM_setValue
 // @grant GM_getValue
 // ==/UserScript==
@@ -211,13 +211,11 @@ function insertclass(classo) {
   sfsubject(classo);
 }
 
-
 function go() {
   const id = $('#who_id').attr('value');
 
   const urlr = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Name from pymt__Shopping_Cart_Item__c WHERE pymt__Contact__c = '${id}' AND CreatedDate = LAST_N_DAYS:60`;
   const urlcontactquery = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Order_Source__c from Contact WHERE Id = '${id}'`;
-
 
   // bring in order source
   GM_xmlhttpRequest({
@@ -321,7 +319,7 @@ function go() {
         console.log(ec);
         if (ec === 'INVALID_SESSION_ID') { needsession = true; }
         if (needsession) {
-          getkey();
+          getkey(go);
         }
       }
     },
@@ -329,7 +327,6 @@ function go() {
   if (injected === 1) return;
 
   $('#head_1_ep').next().find('tbody').prepend('<tr id=\'itemsrow\'><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Other ID</label></td><td class=\'dataCol col02\'><input type=\'text\' id=\'otherid\' /></td></tr>');
-
 
   $('#otherid').on('change', (k) => {
     const otherid = $(k.target).val().trim();
@@ -388,7 +385,6 @@ function go() {
   const scriptversion = GM_info.script.version;
   let tab = $('#AllTab_Tab').after('<li id="scriptversion"><li>');
   tab = $('#scriptversion');
-  tab.css('float', 'right');
   tab.css('color', '#0068B3');
   tab.css('font-weight', 'bold');
   tab.text(`GTC Script: v${scriptversion}`);
@@ -396,7 +392,7 @@ function go() {
   injected = 1;
 }
 
-getkey = () => {
+getkey = (callback) => {
   console.log('getting key');
   GM_xmlhttpRequest({
     method: 'POST',
@@ -411,16 +407,69 @@ getkey = () => {
       const token = jr.access_token;
       console.log(token);
       GM_setValue('token', token);
-      go();
+      callback();
     },
   });
 };
 
+function homechecks() {
+  // console.log(tok);
+  const today = Date.today();
+  const todayplus30 = today.clone().addDays(30);
+  // console.log({ today, todayplus30 });
+  GM_xmlhttpRequest({
+    method: 'get',
+    url: 'https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Id, evt__Start__c, evt__Session_Fee__c from evt__Session__c WHERE evt__Start__c > TODAY AND evt__Start__c <= NEXT_N_MONTHS:2 order by evt__Start__c asc',
+    headers: {
+      Authorization: `OAuth ${GM_getValue('token')}`,
+      'Content-Type': 'application/json',
+    },
+    onload(response) {
+      if (response.status === 200) {
+        const json = JSON.parse(response.responseText);
+        const wrongsessions = [];
+        $(json.records).each((index, item) => {
+          // console.log(item);
+          const completeurl = `https://na8.salesforce.com/${item.Id}`;
+          const session = {
+            url: completeurl,
+            date: Date.parse(item.evt__Start__c.split('T')[0]),
+            currentcost: item.evt__Session_Fee__c,
+            correctcost: item.evt__Session_Fee__c,
+          };
+          if (session.date < todayplus30) {
+            if (session.currentcost === 545 || session.currentcost === 345) {
+              session.correctcost = session.currentcost + 50;
+              wrongsessions.push(session);
+            }
+          }
+        });
+        if (wrongsessions.length > 0) {
+          $('#section_header').parent().append("<div id='wrongsessions' class='metadata'></div>");
+          $('#wrongsessions').css({ border: '3px solid red', padding: '5px', background: 'linear-gradient(#f48181, #ffbaba)' });
+          $(wrongsessions).each((i, e) => {
+            $('#wrongsessions').append(`<div><a href="${e.url}">Session</a> has the wrong cost (${e.currentcost} should be ${e.correctcost}) (${e.date.toString('d-MMM-yyyy')})<div>`);
+          });
+        }
+      } else {
+        // alert("Error: "+response.responseText);
+        console.error(response.responseText);
+        let needsession = false;
+        const ec = JSON.parse(response.responseText)[0].errorCode;
+        console.log(ec);
+        if (ec === 'INVALID_SESSION_ID') { needsession = true; }
+        if (needsession) {
+          getkey(homechecks);
+        }
+      }
+    },
+  });
+}
+
 $(document).ready(() => {
-  if (GM_getValue('token') === 'undefined') {
-    getkey();
+  if (window.location.href === 'https://na8.salesforce.com/home/home.jsp') {
+    homechecks();
   } else {
-    // console.log(GM_getValue('token'));
     go();
   }
 });
