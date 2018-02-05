@@ -1,14 +1,13 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      1.6
+// @version      1.7
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
 // @license      GPL-3.0+; http://www.gnu.org/licenses/gpl-3.0.txt
-// @include      https://na8.salesforce.com/00T/e?who_id=*
-// @include      https://na8.salesforce.com/home/home.jsp
-// @require      https://code.jquery.com/jquery-3.1.1.slim.min.js
+// @include      https://na8.salesforce.com/*
+// @require      https://code.jquery.com/jquery-3.3.1.slim.min.js
 // @require      http://globaltrainingcenter.com/date.js
 // @updateURL    @updateURL https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
 // @downloadURL  @updateURL https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
@@ -211,6 +210,15 @@ function insertclass(classo) {
   sfsubject(classo);
 }
 
+function addwatermark() {
+  const scriptversion = GM_info.script.version;
+  let tab = $('#AllTab_Tab').after('<li id="scriptversion"><li>');
+  tab = $('#scriptversion');
+  tab.css('color', '#0068B3');
+  tab.css('font-weight', 'bold');
+  tab.text(`GTC Script: v${scriptversion}`);
+}
+
 function go() {
   const id = $('#who_id').attr('value');
 
@@ -382,12 +390,7 @@ function go() {
     });
   });
 
-  const scriptversion = GM_info.script.version;
-  let tab = $('#AllTab_Tab').after('<li id="scriptversion"><li>');
-  tab = $('#scriptversion');
-  tab.css('color', '#0068B3');
-  tab.css('font-weight', 'bold');
-  tab.text(`GTC Script: v${scriptversion}`);
+  addwatermark();
 
   injected = 1;
 }
@@ -413,7 +416,7 @@ getkey = (callback) => {
 };
 
 function homechecks() {
-  // console.log(tok);
+  console.log(GM_getValue('token'));
   const today = Date.today();
   const todayplus30 = today.clone().addDays(30);
   // console.log({ today, todayplus30 });
@@ -462,14 +465,24 @@ function homechecks() {
           getkey(homechecks);
         }
       }
+      addwatermark();
     },
   });
 }
 
 $(document).ready(() => {
-  if (window.location.href === 'https://na8.salesforce.com/home/home.jsp') {
+  if (window.location.href === 'https://na8.salesforce.com/home/home.jsp' || window.location.href === 'https://na8.salesforce.com/01ZC00000013c3z') {
     homechecks();
   } else {
-    go();
+    const addactivity = /(.*)00T(.*)who_id=(.*)/g;
+    if (addactivity.exec(window.location.href)) go();
+    if ($('h2.mainTitle').text() === 'Contact Detail') {
+      const editbuttons = $('.btn').filter((i, e) => $(e).val() === ' Edit ');
+      if (editbuttons.length > 0) {
+        const newtask = $('.btn').filter((i, e) => $(e).val() === 'New Task').clone().addClass('btnImportant');
+        const parent = editbuttons[0];
+        $(parent).before(newtask);
+      }
+    }
   }
 });
