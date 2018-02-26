@@ -3,7 +3,7 @@ const minify = require('gulp-babel-minify');
 const tap = require('gulp-tap');
 const rename = require('gulp-rename');
 
-const version = 2.0;
+const version = 2.1;
 const watermark = `// ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
