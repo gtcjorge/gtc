@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      2.6
+// @version      2.5
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
