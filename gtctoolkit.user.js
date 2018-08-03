@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      2.6
+// @version      1.7
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
-// @include      https://na8.salesforce.com/*
-// @require      https://code.jquery.com/jquery-3.3.1.slim.min.js
+// @license      GPL-3.0+; http://www.gnu.org/licenses/gpl-3.0.txt
+// @include      https://na8.salesforce.com/00T/e?who_id=*
+// @include      https://na8.salesforce.com/home/home.jsp
+// @require      https://code.jquery.com/jquery-3.1.1.slim.min.js
 // @require      http://globaltrainingcenter.com/date.js
 // @updateURL    @updateURL https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
 // @downloadURL  @updateURL https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
@@ -18,4 +20,459 @@
 // @grant GM_getValue
 // ==/UserScript==
 
-const classesfound=[],dict=[];dict['Export to Canada']='Export to Canada',dict['Export Canada']='Export to Canada',dict['Export to Mexico']='Export to Mexico',dict['Export Mexico']='Export to Mexico',dict.Exporting='Export Documentation',dict.Export='Export Documentation',dict['Import Focused Assessment(Audit)']='Import Audit Compliance',dict.Importing='Import Documentation',dict.Import='Import Documentation',dict['Incoterms 2010 Rules']='Incoterms',dict.Incoterms='Incoterms',dict['Incoterms Strategies']='Incoterms Strategies',dict['International Logistics']='International Logistics',dict['Int\'l Logistics']='International Logistics',dict['Letters Credit']='Letters of Credit',dict['Making C-TPAT Work for You']='Road to C-TPAT Certification',dict.CTPAT='Road to C-TPAT Certification',dict['NAFTA Rules of Origin']='NAFTA Rules of Origin',dict.NAFTA='NAFTA Rules of Origin',dict['Tariff Classification']='Tariff Classification',dict.Tariff='Tariff Classification',dict['Trans Pacific Partnership']='TPP',dict['Trans Pacific Partnership Dec 15....NEW']='TPP',dict['Importing 201']='Importing 201',dict['Import 201']='Importing 201';const classes=[],instructors=[];instructors['Arthur O\'Meara']='AO',instructors['Arthur O&#039;Meara']='AO',instructors['Catherine J Petersen']='CP',instructors['Darie Achstein-Conway']='DA',instructors['John Goodrich']='JG',instructors['Michael Laden']='ML',instructors['Paul Patterson']='PP',instructors['George W Thompson']='GT',instructors['Trudy Wilson']='TW';let getkey,injected=0,watermarked=0;function fIns(a){return instructors[a]}function fTime(a,b){let c;return'full'===a&&('seminar'===b&&(c='8:30am-4pm'),'webinar'===b&&(c='8:30am-4pm CST')),'half'===a&&('seminar'===b&&(c='8:30am-Noon'),'webinar'===b&&(c='9:00am-12:30pm CST')),c}function sfsubject(a){const b=[];b[0]=a.Venue,b[1]=a['Event Title'],b[2]=a['Event Desc'],b[3]=a.Venue,b[4]=a['Venue Address'],b[5]=a['Event Date'],b[6]=a.Time,b[7]=a.Cost,b[8]=a.City,b[9]=a['Original Event Date'],b[10]=a.Seminar,b[11]=a.Webinar,b[12]=a.Country,b[13]=a.Link,b[14]=a.Notes,b[15]=a['Hotel Link'],b[16]=a.Instructor;let c,d,f,e,g;switch(g='seminar',('Webinar'===b[0]||'Webinar'===b[8])&&(g='webinar'),'International Logistics'===b[1]?(e='full',c='Trans'):'Incoterms'===b[1]?(e='half',c='Inco'):'Export Documentation'===b[1]?(c='Export',e='full'):'Tariff Classification'===b[1]?(e='full',c='Tariff'):'NAFTA Rules of Origin'===b[1]?(e='full',c='NAFTA'):'Import Documentation'===b[1]?(e='full',c='Import'):'Import Audit Compliance'===b[1]?(e='full',c='Audit'):'Incoterms Strategies'===b[1]?(e='half',c='Inco'):'Letters of Credit'===b[1]?(e='full',c='LC'):'TPP'===b[1]?(e='full',c='TPP'):'Export to Canada'===b[1]?(e='half',c='Canada'):'Importing 201'===b[1]?(e='full',c='Import 201'):'Road to C-TPAT Certification'===b[1]?(e='half',c='C-TPAT'):'Export to Mexico'===b[1]&&(e='half',c='Mexico'),'Webinar'===b[3]?(d='Webinar',g='webinar'):[d]=b[3].split(', '),$('#tsk5').val(`${d} ${c}`).css('border','3px solid green'),b[1]){case'Import Audit Compliance':f='Import Focused Assessment';break;case'Incoterms':f='International Terms';break;case'Incoterms Strategies':f='International Terms Strategies';break;case'Letters of Credit':f='International Letters of Credit';break;case'Road to C-TPAT Certification':f='Road to C-TPAT';break;case'TPP':f='Trans Pacific Partnership';break;default:[,f]=b;}const h=Date.parse(b[5]),i=new Date,j=h.toString('MM/dd/yyyy'),k=i.toString('MM/dd/yyyy'),l=1 .months().fromNow();let m=-1;h>=l?('full'===e&&(m='545'),'half'===e&&(m='345')):('full'===e&&(m='595'),'half'===e&&(m='395'));const n=fTime(e,g),o=fIns(b[16]);$('option').filter((a,b)=>$(b).val()===o).prop('selected',!0).parent().css('border','3px solid green'),$('option').filter((a,b)=>$(b).val()===f).prop('selected',!0).parent().css('border','3px solid green'),$('option').filter((a,b)=>$(b).val()===n).prop('selected',!0).parent().css('border','3px solid green'),$('#00N80000004fJvF').val(m).css('border','3px solid green'),$('#00N80000004fJvU').val(k).css('border','3px solid green'),$('#tsk4').val(j).css('border','3px solid green')}function insertclass(a){sfsubject(a)}function addwatermark(){if(1==watermarked)return;const a=GM_info.script.version;let b=$('#AllTab_Tab').after('<li id="scriptversion"><li>');b=$('#scriptversion'),b.css('color','#0068B3'),b.css('font-weight','bold'),b.text(`GTC Script: v${a}`),watermarked=1}function go(){const a=$('#who_id').attr('value'),b=`https://na8.salesforce.com/services/data/v42.0/query/?q=SELECT Name from pymt__Shopping_Cart_Item__c WHERE pymt__Contact__c = '${a}' AND CreatedDate = LAST_N_DAYS:60`,c=`https://na8.salesforce.com/services/data/v42.0/query/?q=SELECT Order_Source__c from Contact WHERE Id = '${a}'`;GM_xmlhttpRequest({method:'get',url:c,headers:{Authorization:`OAuth ${GM_getValue('token')}`,"Content-Type":'application/json'},onload(a){if(200===a.status){const b=JSON.parse(a.responseText);if(b&&1===b.totalSize){const a=b.records[0].Order_Source__c;let c=a;'CoWorker'===a&&(c='Co-Worker'),'WebSearch'===a&&(c='Web Search'),$('option').filter((a,b)=>$(b).val()===c).prop('selected',!0).parent().css('border','3px solid green')}}}}),GM_xmlhttpRequest({method:'get',url:b,headers:{Authorization:`OAuth ${GM_getValue('token')}`,"Content-Type":'application/json'},onload(a){if(200===a.status){$('#head_1_ep').next().find('tbody').prepend('<tr id=\'itemsrow\'><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Items</label></td><td class=\'dataCol col02\'><select id=\'classes\'></select></td></tr>'),$('#classes').append('<option id=\'blank\'></option>'),$('#classes').on('change',(b)=>{if(!$(b.target).find(':selected').val()||''===$(b.target).find(':selected').val())return;let c=$(b.target).find(':selected').val().split(' - ')[1];if(2<c.split(' ').length){const a=c.split(' ');c=`${a[0]} ${a[1]}`}const d=`${dict[$(b.target).find(':selected').val().split(' - ')[0]]} - ${c}`;console.log(`http://www.globaltrainingcenter.com/classapi.php?sf=${d}`),GM_xmlhttpRequest({method:'GET',url:`http://www.globaltrainingcenter.com/classapi.php?sf=${d}`,onload(b){if(200===b.status){console.log(b.responseText);const a=JSON.parse(b.responseText);if(console.log(a),(!a.length||1>a.length)&&alert('No results please enter manually'),1===a.length&&insertclass(a[0]),1<a.length){console.log(a),$('#itemsrow').after('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Classes found</label></td><td class=\'dataCol col02\'><select id=\'classesfound\'></select></td></tr>'),$('#classesfound').append('<option id=\'blank\'></option>'),$('#classesfound').on('change',(b)=>{const c=$(b.target);if($(c).find(':selected').val()&&''!==$(c).find(':selected').val()){const b=$(c).find(':selected').attr('id');insertclass(a[b])}});for(let b=0;b<a.length;b+=1)classesfound[b]=a[b],$('#classesfound').append(`<option id='${b}'>${a[b]['Event Title']} - ${a[b].Venue} - ${a[b]['Event Date']}</option>`)}}else console.error(a.responseText)}})});const b=JSON.parse(a.responseText);$(b.records).each((a,b)=>{let c=b.Name.split('-')[0];c=c.replace(/\*/,'');const d=b.Name.split('-')[1];c.split('Session: ')[1]&&([,c]=c.split('Session: '));const e={name:c,date:d};dict[c]&&(classes[a]=e,$('#classes').append(`<option id='${a}'>${e.name} - ${e.date}</option>`))})}else{console.error(a.responseText);let b=!1;const c=JSON.parse(a.responseText)[0].errorCode;console.log(c),'INVALID_SESSION_ID'===c&&(b=!0),b&&getkey(go)}}});1==injected||($('#head_1_ep').next().find('tbody').prepend('<tr id=\'itemsrow\'><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Other ID</label></td><td class=\'dataCol col02\'><input type=\'text\' id=\'otherid\' /></td></tr>'),$('#otherid').on('change',(a)=>{const b=$(a.target).val().trim();GM_xmlhttpRequest({method:'GET',headers:{Authorization:`OAuth ${GM_getValue('token')}`,"Content-Type":'application/json'},url:`https://na8.salesforce.com/services/data/v42.0/query/?q=SELECT Id,Subject FROM Task where WhoId = '${b}' and Seminar_Price__c != NULL`,onload(a){if(200===a.status){console.log(a.responseText),$('#otherid').parent().parent().next().before('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Clone Task</label></td><td class=\'dataCol col02\'><select id=\'tasksfromotherid\'><option></option></select></td></tr>');const b=JSON.parse(a.responseText);for(let a=0;a<b.records.length;a+=1){alert(b.records[a].Subject);const c=b.records[a];$('#tasksfromotherid').append(`<option id='${c.Id}'>${c.Subject}</option>`)}$('#tasksfromotherid').on('change',()=>{const a=$('#tasksfromotherid option:selected').attr('id'),b=GM_getValue('token');GM_xmlhttpRequest({method:'GET',headers:{Authorization:`OAuth ${b}`},url:`https://na8.salesforce.com/services/data/v42.0/sobjects/Task/${a}`,onload(a){if(200===a.status){const b=JSON.parse(a.responseText),c=Date.parse(b.ActivityDate).toString('MM/dd/yyyy');$('#tsk5').val(b.Subject).css('border','3px solid green'),$('#00NC0000005CE6d > option').filter((a,c)=>$(c).val()===b.Seminar_Description__c).prop('selected',!0).parent().css('border','3px solid green'),$('#00N80000004fJvF').val(b.Seminar_Price__c).css('border','3px solid green'),$('#00N80000004fK21 > option').filter((a,c)=>$(c).val()===b.Instructor__c).prop('selected',!0).parent().css('border','3px solid green'),$('#00NC0000005CEDy > option').filter((a,c)=>$(c).val()===b.Seminar_Hours__c).prop('selected',!0).parent().css('border','3px solid green');const d=Date.parse('today').toString('MM/dd/yyyy');$('#00N80000004fJvU').val(d).css('border','3px solid green'),$('#tsk4').val(c).css('border','3px solid green')}}})})}}})}),addwatermark(),injected=1)}getkey=(a)=>{console.log('getting key'),GM_xmlhttpRequest({method:'POST',url:'https://login.salesforce.com/services/oauth2/token',headers:{"Content-Type":'application/x-www-form-urlencoded'},data:'grant_type=password&client_id=3MVG9CVKiXR7Ri5oTacFEDc70dveabo7ofE9G1sr_6XO03Qk1mM9Hq1StahY9EqbOsBhcm3PEb6FzhkW3HVKz&client_secret=4221779451511459233&username=team%40globaltrainingcenter.com&password=4gtc550e',onload(b){const c=JSON.parse(b.responseText),d=c.access_token,e=c.error_description;d?(console.log(d),GM_setValue('token',d),a()):'authentication failure'===e&&alert('wrong password')}})};function homechecks(){console.log(GM_getValue('token'));const a=Date.today(),b=a.clone().addDays(30);GM_xmlhttpRequest({method:'get',url:'https://na8.salesforce.com/services/data/v42.0/query/?q=SELECT Id, Name, evt__Start__c, evt__Session_Fee__c from evt__Session__c WHERE evt__Start__c > TODAY AND evt__Start__c <= NEXT_N_MONTHS:2 order by evt__Start__c asc',headers:{Authorization:`OAuth ${GM_getValue('token')}`,"Content-Type":'application/json'},onload(a){if(200===a.status){const c=JSON.parse(a.responseText),d=[];$(c.records).each((a,c)=>{const e=`https://na8.salesforce.com/${c.Id}`,f={id:c.Id,url:e,name:c.Name,date:Date.parse(c.evt__Start__c.split('T')[0]),currentcost:c.evt__Session_Fee__c,correctcost:c.evt__Session_Fee__c};f.date<=b&&-1===f.name.indexOf('*')&&(545===f.currentcost||345===f.currentcost)&&(f.correctcost=f.currentcost+50,d.push(f))}),0<d.length&&($('#section_header').parent().append('<div id=\'wrongsessions\' class=\'metadata\'></div>'),$('#wrongsessions').css({border:'3px solid red',padding:'5px',background:'linear-gradient(#f48181, #ffbaba)'}),$(d).each((a,b)=>{GM_xmlhttpRequest({method:'PATCH',headers:{Authorization:`OAuth ${GM_getValue('token')}`,"Content-Type":'application/json'},url:`https://na8.salesforce.com/services/data/v42.0/sobjects/evt__Session__c/${b.id}`,data:JSON.stringify({evt__Session_Fee__c:b.correctcost}),onload(a){a&&204===a.status&&$('#wrongsessions').append(`<div><a href="${b.url}">${b.name}</a> had the wrong cost (${b.currentcost} was updated to ${b.correctcost}) (${b.date.toString('d-MMM-yyyy')})<div>`)}})}))}else{console.error(a.responseText);let b=!1;const c=JSON.parse(a.responseText)[0].errorCode;console.log(c),'INVALID_SESSION_ID'===c&&(b=!0),b&&getkey(homechecks)}addwatermark()}})}$(document).ready(()=>{if('https://na8.salesforce.com/home/home.jsp'===window.location.href||'https://na8.salesforce.com/01ZC00000013c3z'===window.location.href)homechecks();else{const a=/(.*)00T(.*)who_id=(.*)/g;if(a.exec(window.location.href)&&go(),'Contact Detail'===$('h2.mainTitle').text()){const a=$('.btn').filter((a,b)=>' Edit '===$(b).val());if(0<a.length){const b=$('.btn').filter((a,b)=>'New Task'===$(b).val()).clone().addClass('btnImportant'),c=a[0];$(c).before(b),addwatermark()}}}});
+const classesfound = [];
+const dict = [];
+dict['Export to Canada'] = 'Export to Canada';
+dict['Export to Mexico'] = 'Export to Mexico';
+dict.Exporting = 'Export Documentation';
+dict['Import Focused Assessment(Audit)'] = 'Import Audit Compliance';
+dict.Importing = 'Import Documentation';
+dict['Incoterms 2010 Rules'] = 'Incoterms';
+dict['Incoterms Strategies'] = 'Incoterms Strategies';
+dict['International Logistics'] = 'International Logistics';
+dict['Int\'l Logistics'] = 'International Logistics';
+dict['Letters of Credit'] = 'Letters of Credit';
+dict['Making C-TPAT Work for You'] = 'Road to C-TPAT Certification';
+dict['NAFTA Rules of Origin'] = 'NAFTA Rules of Origin';
+dict['Tariff Classification'] = 'Tariff Classification';
+dict['Trans Pacific Partnership'] = 'TPP';
+dict['Trans Pacific Partnership Dec 15....NEW'] = 'TPP';
+dict['Importing 201'] = 'Importing 201';
+const classes = [];
+const instructors = [];
+instructors['Arthur O\'Meara'] = 'AO';
+instructors['Arthur O&#039;Meara'] = 'AO';
+instructors['Catherine J Petersen'] = 'CP';
+instructors['Darie Achstein-Conway'] = 'DA';
+instructors['John Goodrich'] = 'JG';
+instructors['Michael Laden'] = 'ML';
+instructors['Paul Patterson'] = 'PP';
+instructors['George W Thompson'] = 'GT';
+instructors['Trudy Wilson'] = 'TW';
+
+let injected = 0;
+let getkey;
+
+function fIns(inst) {
+	return instructors[inst];
+}
+
+function fTime(halforfull, type) {
+	let rtime;
+	if (halforfull === 'full') {
+		if (type === 'seminar') { rtime = '8:30am-4pm'; }
+		if (type === 'webinar') { rtime = '8:30am-4pm CST'; }
+	}
+	if (halforfull === 'half') {
+		if (type === 'seminar') { rtime = '8:30am-Noon'; }
+		if (type === 'webinar') { rtime = '9:00am-12:30pm CST'; }
+	}
+	return rtime;
+}
+
+function sfsubject(co) {
+	const c = [];
+	c[0] = co.Venue;
+	c[1] = co['Event Title'];
+	c[2] = co['Event Desc'];
+	c[3] = co.Venue;
+	c[4] = co['Venue Address'];
+	c[5] = co['Event Date'];
+	c[6] = co.Time;
+	c[7] = co.Cost;
+	c[8] = co.City;
+	c[9] = co['Original Event Date'];
+	c[10] = co.Seminar;
+	c[11] = co.Webinar;
+	c[12] = co.Country;
+	c[13] = co.Link;
+	c[14] = co.Notes;
+	c[15] = co['Hotel Link'];
+	c[16] = co.Instructor;
+	// class info
+	let classname;
+	let cityname;
+	let description;
+	let halforfull;
+	let type;
+	type = 'seminar';
+	// class info
+
+	if (c[0] === 'Webinar' || c[8] === 'Webinar') { type = 'webinar'; }
+
+	if (c[1] === 'International Logistics') {
+		halforfull = 'full';
+		classname = 'Trans';
+	} else if (c[1] === 'Incoterms') {
+		halforfull = 'half';
+		classname = 'Inco';
+	} else if (c[1] === 'Export Documentation') {
+		classname = 'Export';
+		halforfull = 'full';
+	} else if (c[1] === 'Tariff Classification') {
+		halforfull = 'full';
+		classname = 'Tariff';
+	} else if (c[1] === 'NAFTA Rules of Origin') {
+		halforfull = 'full';
+		classname = 'NAFTA';
+	} else if (c[1] === 'Import Documentation') {
+		halforfull = 'full';
+		classname = 'Import';
+	} else if (c[1] === 'Import Audit Compliance') {
+		halforfull = 'full';
+		classname = 'Audit';
+	} else if (c[1] === 'Incoterms Strategies') {
+		halforfull = 'half';
+		classname = 'Inco';
+	} else if (c[1] === 'Letters of Credit') {
+		halforfull = 'full';
+		classname = 'LC';
+	} else if (c[1] === 'TPP') {
+		halforfull = 'full';
+		classname = 'TPP';
+	} else if (c[1] === 'Export to Canada') {
+		halforfull = 'half';
+		classname = 'Canada';
+	} else if (c[1] === 'Importing 201') {
+		halforfull = 'full';
+		classname = 'Import 201';
+	} else if (c[1] === 'Road to C-TPAT Certification') {
+		halforfull = 'half';
+		classname = 'C-TPAT';
+	} else if (c[1] === 'Export to Mexico') {
+		halforfull = 'half';
+		classname = 'Mexico';
+	}
+
+	if (c[3] === 'Webinar') {
+		cityname = 'Webinar';
+		type = 'webinar';
+	} else {
+		[cityname] = c[3].split(', ');
+	}
+
+	$('#tsk5').val(`${cityname} ${classname}`).css('border', '3px solid green');
+
+
+	switch (c[1]) {
+		case 'Import Audit Compliance':
+		description = 'Import Focused Assessment';
+		break;
+		case 'Incoterms':
+		description = 'International Terms';
+		break;
+		case 'Incoterms Strategies':
+		description = 'International Terms Strategies';
+		break;
+		case 'Letters of Credit':
+		description = 'International Letters of Credit';
+		break;
+		case 'Road to C-TPAT Certification':
+		description = 'Road to C-TPAT';
+		break;
+		case 'TPP':
+		description = 'Trans Pacific Partnership';
+		break;
+		default:
+		[, description] = c;
+		break;
+	}
+
+	const classdate = Date.parse(c[5]);
+	const today = new Date();
+	const datefield = classdate.toString('MM/dd/yyyy');
+	const registrationfield = today.toString('MM/dd/yyyy');
+	const testdate = (1).months().fromNow();
+	let price = -1;
+	if (classdate >= testdate) {
+		if (halforfull === 'full') { price = '545'; }
+		if (halforfull === 'half') { price = '345'; }
+	} else {
+		if (halforfull === 'full') { price = '595'; }
+		if (halforfull === 'half') { price = '395'; }
+	}
+
+	const hoursfield = fTime(halforfull, type);
+
+
+	const ins = fIns(c[16]);
+
+	$('option').filter((i, e) => $(e).val() === ins).prop('selected', true).parent()
+	.css('border', '3px solid green');
+	$('option').filter((i, e) => $(e).val() === description).prop('selected', true).parent()
+	.css('border', '3px solid green');
+	$('option').filter((i, e) => $(e).val() === hoursfield).prop('selected', true).parent()
+	.css('border', '3px solid green');
+	$('#00N80000004fJvF').val(price).css('border', '3px solid green');
+	$('#00N80000004fJvU').val(registrationfield).css('border', '3px solid green');
+	$('#tsk4').val(datefield).css('border', '3px solid green');
+}
+
+function insertclass(classo) {
+	sfsubject(classo);
+}
+
+function go() {
+	const id = $('#who_id').attr('value');
+
+	const urlr = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Name from pymt__Shopping_Cart_Item__c WHERE pymt__Contact__c = '${id}' AND CreatedDate = LAST_N_DAYS:60`;
+	const urlcontactquery = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Order_Source__c from Contact WHERE Id = '${id}'`;
+
+	// bring in order source
+	GM_xmlhttpRequest({
+		method: 'get',
+		url: urlcontactquery,
+		headers: {
+			Authorization: `OAuth ${GM_getValue('token')}`,
+			'Content-Type': 'application/json',
+		},
+		onload(response) {
+			// console.log(response);
+			if (response.status === 200) {
+				const json = JSON.parse(response.responseText);
+				// console.log(json);
+				if (json && json.totalSize === 1) {
+					const source = json.records[0].Order_Source__c;
+					// console.log(source);
+					let tsource = source;
+					if (source === 'CoWorker') tsource = 'Co-Worker';
+					if (source === 'WebSearch') tsource = 'Web Search';
+					$('option').filter((i, e) => $(e).val() === tsource).prop('selected', true).parent()
+					.css('border', '3px solid green');
+				}
+			}
+		},
+	});
+	// finish bring in order source
+
+	// get shopping cart items
+	GM_xmlhttpRequest({
+		method: 'get',
+		url: urlr,
+		headers: {
+			Authorization: `OAuth ${GM_getValue('token')}`,
+			'Content-Type': 'application/json',
+		},
+		onload(response) {
+			if (response.status === 200) {
+				$('#head_1_ep').next().find('tbody').prepend('<tr id=\'itemsrow\'><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Items</label></td><td class=\'dataCol col02\'><select id=\'classes\'></select></td></tr>');
+				$('#classes').append('<option id=\'blank\'></option>');
+				$('#classes').on('change', (k) => {
+					if (!$(k.target).find(':selected').val() || $(k.target).find(':selected').val() === '') { return; }
+					let cdate = $(k.target).find(':selected').val().split(' - ')[1];
+					if (cdate.split(' ').length > 2) {
+						const splits = cdate.split(' ');
+						cdate = `${splits[0]} ${splits[1]}`;
+					}
+					const classselected = `${dict[$(k.target).find(':selected').val().split(' - ')[0]]} - ${cdate}`;
+					console.log(`http://www.globaltrainingcenter.com/classapi.php?sf=${classselected}`);
+					GM_xmlhttpRequest({
+						method: 'GET',
+						url: `http://www.globaltrainingcenter.com/classapi.php?sf=${classselected}`,
+						onload(response2) {
+							if (response2.status === 200) {
+								// console.log(response2.responseText);
+								const json = JSON.parse(response2.responseText);
+								// console.log(json);
+								if (!json.length || json.length < 1) { alert('No results please enter manually'); }
+								if (json.length === 1) { insertclass(json[0]); }
+								if (json.length > 1) {
+									// console.log(json);
+									$('#itemsrow').after('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Classes found</label></td><td class=\'dataCol col02\'><select id=\'classesfound\'></select></td></tr>');
+									$('#classesfound').append('<option id=\'blank\'></option>');
+									$('#classesfound').on('change', (i) => {
+										const selectbox = $(i.target);
+										if (!$(selectbox).find(':selected').val() || $(selectbox).find(':selected').val() === '') { return; }
+										const idfound = $(selectbox).find(':selected').attr('id');
+										insertclass(json[idfound]);
+									});
+									for (let x = 0; x < json.length; x += 1) {
+										classesfound[x] = json[x];
+										$('#classesfound').append(`<option id='${x}'>${json[x]['Event Title']} - ${json[x].Venue} - ${json[x]['Event Date']}</option>`);
+									}
+								}
+							} else {
+								console.error(response2.responseText);
+							}
+						},
+					});
+				});
+				const json = JSON.parse(response.responseText);
+				$(json.records).each((index, item) => {
+					let name = item.Name.split('-')[0];
+					const date = item.Name.split('-')[1];
+					if (name.split('Session: ')[1]) [, name] = name.split('Session: ');
+					console.log(name);
+					const classo = {
+						name,
+						date,
+					};
+					if (dict[name]) {
+						classes[index] = classo;
+						$('#classes').append(`<option id='${index}'>${classo.name} - ${classo.date}</option>`);
+					}
+				});
+			} else {
+				// alert("Error: "+response.responseText);
+				console.error(response.responseText);
+				let needsession = false;
+				const ec = JSON.parse(response.responseText)[0].errorCode;
+				console.log(ec);
+				if (ec === 'INVALID_SESSION_ID') { needsession = true; }
+				if (needsession) {
+					getkey(go);
+				}
+			}
+		},
+	});
+	if (injected === 1) return;
+
+	$('#head_1_ep').next().find('tbody').prepend('<tr id=\'itemsrow\'><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Other ID</label></td><td class=\'dataCol col02\'><input type=\'text\' id=\'otherid\' /></td></tr>');
+
+	$('#otherid').on('change', (k) => {
+		const otherid = $(k.target).val().trim();
+		GM_xmlhttpRequest({
+			method: 'GET',
+			headers: {
+				Authorization: `OAuth ${GM_getValue('token')}`,
+				'Content-Type': 'application/json',
+			},
+			url: `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Id,Subject FROM Task where WhoId = '${otherid}' and Seminar_Price__c != NULL`,
+			onload(response) {
+				if (response.status === 200) {
+					// console.log(response.responseText);
+					$('#otherid').parent().parent().next()
+					.before('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Clone Task</label></td><td class=\'dataCol col02\'><select id=\'tasksfromotherid\'><option></option></select></td></tr>');
+					const json = JSON.parse(response.responseText);
+					for (let i = 0; i < json.records.length; i += 1) {
+						// alert(json.records[i].Subject);
+						const r = json.records[i];
+						$('#tasksfromotherid').append(`<option id='${r.Id}'>${r.Subject}</option>`);
+					}
+					$('#tasksfromotherid').on('change', () => {
+						// https://na8.salesforce.com/services/data/v38.0/sobjects/Task/00TC000005D1RLjMAN
+						const id2 = $('#tasksfromotherid option:selected').attr('id');
+						const tok = GM_getValue('token');
+						GM_xmlhttpRequest({
+							method: 'GET',
+							headers: {
+								Authorization: `OAuth ${tok}`,
+							},
+							url: `https://na8.salesforce.com/services/data/v38.0/sobjects/Task/${id2}`,
+							onload(response3) {
+								if (response3.status === 200) {
+									const json2 = JSON.parse(response3.responseText);
+									const duedate = Date.parse(json2.ActivityDate).toString('MM/dd/yyyy');
+									$('#tsk5').val(json2.Subject).css('border', '3px solid green');
+									$('#00NC0000005CE6d > option').filter((i, e) => $(e).val() === json2.Seminar_Description__c).prop('selected', true).parent()
+									.css('border', '3px solid green');
+									$('#00N80000004fJvF').val(json2.Seminar_Price__c).css('border', '3px solid green');
+									$('#00N80000004fK21 > option').filter((i, e) => $(e).val() === json2.Instructor__c).prop('selected', true).parent()
+									.css('border', '3px solid green');
+									$('#00NC0000005CEDy > option').filter((i, e) => $(e).val() === json2.Seminar_Hours__c).prop('selected', true).parent()
+									.css('border', '3px solid green');
+									const today = Date.parse('today').toString('MM/dd/yyyy');
+									$('#00N80000004fJvU').val(today).css('border', '3px solid green');
+									$('#tsk4').val(duedate).css('border', '3px solid green');
+								}
+							},
+						});
+					});
+				}
+			},
+		});
+	});
+
+	const scriptversion = GM_info.script.version;
+	let tab = $('#AllTab_Tab').after('<li id="scriptversion"><li>');
+	tab = $('#scriptversion');
+	tab.css('color', '#0068B3');
+	tab.css('font-weight', 'bold');
+	tab.text(`GTC Script: v${scriptversion}`);
+
+	injected = 1;
+}
+
+getkey = (callback) => {
+	console.log('getting key');
+	GM_xmlhttpRequest({
+		method: 'POST',
+		url: 'https://login.salesforce.com/services/oauth2/token',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		},
+		data: 'grant_type=password&client_id=3MVG9CVKiXR7Ri5oTacFEDc70dveabo7ofE9G1sr_6XO03Qk1mM9Hq1StahY9EqbOsBhcm3PEb6FzhkW3HVKz&client_secret=4221779451511459233&username=team%40globaltrainingcenter.com&password=4gtc550e',
+		onload(response) {
+			// console.log(response);
+			const jr = JSON.parse(response.responseText);
+			const token = jr.access_token;
+			console.log(token);
+			GM_setValue('token', token);
+			callback();
+		},
+	});
+};
+
+function homechecks() {
+	// console.log(tok);
+	const today = Date.today();
+	const todayplus30 = today.clone().addDays(30);
+	// console.log({ today, todayplus30 });
+	GM_xmlhttpRequest({
+		method: 'get',
+		url: 'https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Id, evt__Start__c, evt__Session_Fee__c from evt__Session__c WHERE evt__Start__c > TODAY AND evt__Start__c <= NEXT_N_MONTHS:2 order by evt__Start__c asc',
+		headers: {
+			Authorization: `OAuth ${GM_getValue('token')}`,
+			'Content-Type': 'application/json',
+		},
+		onload(response) {
+			if (response.status === 200) {
+				const json = JSON.parse(response.responseText);
+				const wrongsessions = [];
+				$(json.records).each((index, item) => {
+					// console.log(item);
+					const completeurl = `https://na8.salesforce.com/${item.Id}`;
+					const session = {
+						url: completeurl,
+						date: Date.parse(item.evt__Start__c.split('T')[0]),
+						currentcost: item.evt__Session_Fee__c,
+						correctcost: item.evt__Session_Fee__c,
+					};
+					if (session.date < todayplus30) {
+						if (session.currentcost === 545 || session.currentcost === 345) {
+							session.correctcost = session.currentcost + 50;
+							wrongsessions.push(session);
+						}
+					}
+				});
+				if (wrongsessions.length > 0) {
+					$('#section_header').parent().append("<div id='wrongsessions' class='metadata'></div>");
+					$('#wrongsessions').css({ border: '3px solid red', padding: '5px', background: 'linear-gradient(#f48181, #ffbaba)' });
+					$(wrongsessions).each((i, e) => {
+						$('#wrongsessions').append(`<div><a href="${e.url}">Session</a> has the wrong cost (${e.currentcost} should be ${e.correctcost}) (${e.date.toString('d-MMM-yyyy')})<div>`);
+					});
+				}
+			} else {
+				alert("Error: " + response.responseText);
+				console.error(response.responseText);
+				let needsession = false;
+				const ec = JSON.parse(response.responseText)[0].errorCode;
+				console.log(ec);
+				if (ec === 'INVALID_SESSION_ID') { needsession = true; }
+				if (needsession) {
+					getkey(homechecks);
+				}
+			}
+		},
+	});
+}
+
+$(document).ready(() => {
+	if (window.location.href === 'https://na8.salesforce.com/home/home.jsp') {
+	var token = GM_getValue('token');
+	console.log(token);
+	homechecks();
+} else {
+	go();
+}
+});
