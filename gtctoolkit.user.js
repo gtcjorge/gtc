@@ -38,6 +38,8 @@ dict['Tariff Classification'] = 'Tariff Classification';
 dict['Trans Pacific Partnership'] = 'TPP';
 dict['Trans Pacific Partnership Dec 15....NEW'] = 'TPP';
 dict['Importing 201'] = 'Importing 201';
+dict.Tariff = 'Tariff Classification';
+
 const classes = [];
 const instructors = [];
 instructors['Arthur O\'Meara'] = 'AO';
@@ -155,25 +157,25 @@ function sfsubject(co) {
 
 
 	switch (c[1]) {
-		case 'Import Audit Compliance':
+	case 'Import Audit Compliance':
 		description = 'Import Focused Assessment';
 		break;
-		case 'Incoterms':
+	case 'Incoterms':
 		description = 'International Terms';
 		break;
-		case 'Incoterms Strategies':
+	case 'Incoterms Strategies':
 		description = 'International Terms Strategies';
 		break;
-		case 'Letters of Credit':
+	case 'Letters of Credit':
 		description = 'International Letters of Credit';
 		break;
-		case 'Road to C-TPAT Certification':
+	case 'Road to C-TPAT Certification':
 		description = 'Road to C-TPAT';
 		break;
-		case 'TPP':
+	case 'TPP':
 		description = 'Trans Pacific Partnership';
 		break;
-		default:
+	default:
 		[, description] = c;
 		break;
 	}
@@ -198,11 +200,11 @@ function sfsubject(co) {
 	const ins = fIns(c[16]);
 
 	$('option').filter((i, e) => $(e).val() === ins).prop('selected', true).parent()
-	.css('border', '3px solid green');
+		.css('border', '3px solid green');
 	$('option').filter((i, e) => $(e).val() === description).prop('selected', true).parent()
-	.css('border', '3px solid green');
+		.css('border', '3px solid green');
 	$('option').filter((i, e) => $(e).val() === hoursfield).prop('selected', true).parent()
-	.css('border', '3px solid green');
+		.css('border', '3px solid green');
 	$('#00N80000004fJvF').val(price).css('border', '3px solid green');
 	$('#00N80000004fJvU').val(registrationfield).css('border', '3px solid green');
 	$('#tsk4').val(datefield).css('border', '3px solid green');
@@ -238,7 +240,7 @@ function go() {
 					if (source === 'CoWorker') tsource = 'Co-Worker';
 					if (source === 'WebSearch') tsource = 'Web Search';
 					$('option').filter((i, e) => $(e).val() === tsource).prop('selected', true).parent()
-					.css('border', '3px solid green');
+						.css('border', '3px solid green');
 				}
 			}
 		},
@@ -342,7 +344,7 @@ function go() {
 				if (response.status === 200) {
 					// console.log(response.responseText);
 					$('#otherid').parent().parent().next()
-					.before('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Clone Task</label></td><td class=\'dataCol col02\'><select id=\'tasksfromotherid\'><option></option></select></td></tr>');
+						.before('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Clone Task</label></td><td class=\'dataCol col02\'><select id=\'tasksfromotherid\'><option></option></select></td></tr>');
 					const json = JSON.parse(response.responseText);
 					for (let i = 0; i < json.records.length; i += 1) {
 						// alert(json.records[i].Subject);
@@ -365,12 +367,12 @@ function go() {
 									const duedate = Date.parse(json2.ActivityDate).toString('MM/dd/yyyy');
 									$('#tsk5').val(json2.Subject).css('border', '3px solid green');
 									$('#00NC0000005CE6d > option').filter((i, e) => $(e).val() === json2.Seminar_Description__c).prop('selected', true).parent()
-									.css('border', '3px solid green');
+										.css('border', '3px solid green');
 									$('#00N80000004fJvF').val(json2.Seminar_Price__c).css('border', '3px solid green');
 									$('#00N80000004fK21 > option').filter((i, e) => $(e).val() === json2.Instructor__c).prop('selected', true).parent()
-									.css('border', '3px solid green');
+										.css('border', '3px solid green');
 									$('#00NC0000005CEDy > option').filter((i, e) => $(e).val() === json2.Seminar_Hours__c).prop('selected', true).parent()
-									.css('border', '3px solid green');
+										.css('border', '3px solid green');
 									const today = Date.parse('today').toString('MM/dd/yyyy');
 									$('#00N80000004fJvU').val(today).css('border', '3px solid green');
 									$('#tsk4').val(duedate).css('border', '3px solid green');
@@ -413,7 +415,7 @@ getkey = (callback) => {
 	});
 };
 
-function homechecks() {
+function ks() {
 	// console.log(tok);
 	const today = Date.today();
 	const todayplus30 = today.clone().addDays(30);
@@ -453,14 +455,14 @@ function homechecks() {
 					});
 				}
 			} else {
-				alert("Error: " + response.responseText);
+				alert(`Error: ${response.responseText}`);
 				console.error(response.responseText);
 				let needsession = false;
 				const ec = JSON.parse(response.responseText)[0].errorCode;
 				console.log(ec);
 				if (ec === 'INVALID_SESSION_ID') { needsession = true; }
 				if (needsession) {
-					getkey(homechecks);
+					getkey(ks);
 				}
 			}
 		},
@@ -469,10 +471,9 @@ function homechecks() {
 
 $(document).ready(() => {
 	if (window.location.href === 'https://na8.salesforce.com/home/home.jsp') {
-	var token = GM_getValue('token');
-	console.log(token);
-	homechecks();
-} else {
-	go();
-}
+		console.log(GM_getValue('token'));
+		ks();
+	} else {
+		go();
+	}
 });

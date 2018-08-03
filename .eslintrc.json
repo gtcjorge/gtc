@@ -4,9 +4,10 @@
         "import"
     ],
     "rules": {
-        "indent": ["error", 2],
+        "indent": ["error", "tab"],
         "no-console":0,
         "arrow-body-style": ["error", "as-needed"],
+        "no-tabs": 0,
         "no-alert": 0
     },
     "env": {
