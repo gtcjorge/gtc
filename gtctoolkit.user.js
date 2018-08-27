@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      1.7
+// @version      3.0
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -11,8 +11,8 @@
 // @include      https://na8.salesforce.com/01ZC00000013c3z
 // @require      https://code.jquery.com/jquery-3.1.1.slim.min.js
 // @require      http://globaltrainingcenter.com/date.js
-// @updateURL    @updateURL https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
-// @downloadURL  @updateURL https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
+// @updateURL    https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
+// @downloadURL  https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
 // @connect      www.globaltrainingcenter.com
 // @connect      globaltrainingcenter.com
 // @connect      login.salesforce.com
@@ -24,21 +24,30 @@
 const classesfound = [];
 const dict = [];
 dict['Export to Canada'] = 'Export to Canada';
+dict['Export Canada'] = 'Export to Canada';
 dict['Export to Mexico'] = 'Export to Mexico';
+dict['Export Mexico'] = 'Export to Mexico';
 dict.Exporting = 'Export Documentation';
+dict.Export = 'Export Documentation';
 dict['Import Focused Assessment(Audit)'] = 'Import Audit Compliance';
 dict.Importing = 'Import Documentation';
+dict.Import = 'Import Documentation';
 dict['Incoterms 2010 Rules'] = 'Incoterms';
+dict.Incoterms = 'Incoterms';
 dict['Incoterms Strategies'] = 'Incoterms Strategies';
 dict['International Logistics'] = 'International Logistics';
 dict['Int\'l Logistics'] = 'International Logistics';
 dict['Letters of Credit'] = 'Letters of Credit';
+dict['Letters Credit'] = 'Letters of Credit';
 dict['Making C-TPAT Work for You'] = 'Road to C-TPAT Certification';
+dict.CTPAT = 'Road to C-TPAT Certification';
 dict['NAFTA Rules of Origin'] = 'NAFTA Rules of Origin';
+dict.NAFTA = 'NAFTA Rules of Origin';
 dict['Tariff Classification'] = 'Tariff Classification';
 dict['Trans Pacific Partnership'] = 'TPP';
 dict['Trans Pacific Partnership Dec 15....NEW'] = 'TPP';
 dict['Importing 201'] = 'Importing 201';
+dict['Import 201'] = 'Importing 201';
 dict.Tariff = 'Tariff Classification';
 
 const classes = [];
@@ -54,13 +63,14 @@ instructors['George W Thompson'] = 'GT';
 instructors['Trudy Wilson'] = 'TW';
 
 let injected = 0;
-let getkey;
+let requestedpassword = false;
 
 function watermark() {
 	const scriptversion = GM_info.script.version;
 	let tab = $('#AllTab_Tab').after('<li id="scriptversion"><li>');
 	tab = $('#scriptversion');
 	tab.css('color', '#0068B3');
+	tab.css('border', '3px solid #0068B3');
 	tab.css('font-weight', 'bold');
 	tab.text(`GTC Script: v${scriptversion}`);
 }
@@ -72,12 +82,20 @@ function fIns(inst) {
 function fTime(halforfull, type) {
 	let rtime;
 	if (halforfull === 'full') {
-		if (type === 'seminar') { rtime = '8:30am-4pm'; }
-		if (type === 'webinar') { rtime = '8:30am-4pm CST'; }
+		if (type === 'seminar') {
+			rtime = '8:30am-4pm';
+		}
+		if (type === 'webinar') {
+			rtime = '8:30am-4pm CST';
+		}
 	}
 	if (halforfull === 'half') {
-		if (type === 'seminar') { rtime = '8:30am-Noon'; }
-		if (type === 'webinar') { rtime = '9:00am-12:30pm CST'; }
+		if (type === 'seminar') {
+			rtime = '8:30am-Noon';
+		}
+		if (type === 'webinar') {
+			rtime = '9:00am-12:30pm CST';
+		}
 	}
 	return rtime;
 }
@@ -110,7 +128,9 @@ function sfsubject(co) {
 	type = 'seminar';
 	// class info
 
-	if (c[0] === 'Webinar' || c[8] === 'Webinar') { type = 'webinar'; }
+	if (c[0] === 'Webinar' || c[8] === 'Webinar') {
+		type = 'webinar';
+	}
 
 	if (c[1] === 'International Logistics') {
 		halforfull = 'full';
@@ -197,11 +217,19 @@ function sfsubject(co) {
 	const testdate = (1).months().fromNow();
 	let price = -1;
 	if (classdate >= testdate) {
-		if (halforfull === 'full') { price = '545'; }
-		if (halforfull === 'half') { price = '345'; }
+		if (halforfull === 'full') {
+			price = '545';
+		}
+		if (halforfull === 'half') {
+			price = '345';
+		}
 	} else {
-		if (halforfull === 'full') { price = '595'; }
-		if (halforfull === 'half') { price = '395'; }
+		if (halforfull === 'full') {
+			price = '595';
+		}
+		if (halforfull === 'half') {
+			price = '395';
+		}
 	}
 
 	const hoursfield = fTime(halforfull, type);
@@ -270,7 +298,9 @@ function go() {
 				$('#head_1_ep').next().find('tbody').prepend('<tr id=\'itemsrow\'><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Items</label></td><td class=\'dataCol col02\'><select id=\'classes\'></select></td></tr>');
 				$('#classes').append('<option id=\'blank\'></option>');
 				$('#classes').on('change', (k) => {
-					if (!$(k.target).find(':selected').val() || $(k.target).find(':selected').val() === '') { return; }
+					if (!$(k.target).find(':selected').val() || $(k.target).find(':selected').val() === '') {
+						return;
+					}
 					let cdate = $(k.target).find(':selected').val().split(' - ')[1];
 					if (cdate.split(' ').length > 2) {
 						const splits = cdate.split(' ');
@@ -286,15 +316,21 @@ function go() {
 								// console.log(response2.responseText);
 								const json = JSON.parse(response2.responseText);
 								// console.log(json);
-								if (!json.length || json.length < 1) { alert('No results please enter manually'); }
-								if (json.length === 1) { insertclass(json[0]); }
+								if (!json.length || json.length < 1) {
+									alert('No results please enter manually');
+								}
+								if (json.length === 1) {
+									insertclass(json[0]);
+								}
 								if (json.length > 1) {
 									// console.log(json);
 									$('#itemsrow').after('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Classes found</label></td><td class=\'dataCol col02\'><select id=\'classesfound\'></select></td></tr>');
 									$('#classesfound').append('<option id=\'blank\'></option>');
 									$('#classesfound').on('change', (i) => {
 										const selectbox = $(i.target);
-										if (!$(selectbox).find(':selected').val() || $(selectbox).find(':selected').val() === '') { return; }
+										if (!$(selectbox).find(':selected').val() || $(selectbox).find(':selected').val() === '') {
+											return;
+										}
 										const idfound = $(selectbox).find(':selected').attr('id');
 										insertclass(json[idfound]);
 									});
@@ -313,7 +349,7 @@ function go() {
 				$(json.records).each((index, item) => {
 					let name = item.Name.split('-')[0];
 					const date = item.Name.split('-')[1];
-					if (name.split('Session: ')[1]) [, name] = name.split('Session: ');
+					if (name.split('Session: ')[1])[, name] = name.split('Session: ');
 					console.log(name);
 					const classo = {
 						name,
@@ -330,7 +366,9 @@ function go() {
 				let needsession = false;
 				const ec = JSON.parse(response.responseText)[0].errorCode;
 				console.log(ec);
-				if (ec === 'INVALID_SESSION_ID') { needsession = true; }
+				if (ec === 'INVALID_SESSION_ID') {
+					needsession = true;
+				}
 				if (needsession) {
 					getkey(go);
 				}
@@ -400,7 +438,8 @@ function go() {
 	injected = 1;
 }
 
-getkey = (callback) => {
+function getkey(callback) {
+	if (requestedpassword === true) return;
 	console.log('getting key');
 	GM_xmlhttpRequest({
 		method: 'POST',
@@ -408,9 +447,10 @@ getkey = (callback) => {
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
 		},
-		data: 'grant_type=password&client_id=3MVG9CVKiXR7Ri5oTacFEDc70dveabo7ofE9G1sr_6XO03Qk1mM9Hq1StahY9EqbOsBhcm3PEb6FzhkW3HVKz&client_secret=4221779451511459233&username=team%40globaltrainingcenter.com&password=4gtc550e',
+		data: 'grant_type=password&client_id=3MVG9CVKiXR7Ri5oTacFEDc70dveabo7ofE9G1sr_6XO03Qk1mM9Hq1StahY9EqbOsBhcm3PEb6FzhkW3HVKz&client_secret=4221779451511459233&username=team%40globaltrainingcenter.com&password=4egtc550',
 		onload(response) {
 			// console.log(response);
+			requestedpassword = true;
 			const jr = JSON.parse(response.responseText);
 			const token = jr.access_token;
 			console.log(token);
@@ -418,7 +458,7 @@ getkey = (callback) => {
 			callback();
 		},
 	});
-};
+}
 
 function ks() {
 	// console.log(tok);
@@ -453,8 +493,12 @@ function ks() {
 					}
 				});
 				if (wrongsessions.length > 0) {
-					$('#section_header').parent().append("<div id='wrongsessions' class='metadata'></div>");
-					$('#wrongsessions').css({ border: '3px solid red', padding: '5px', background: 'linear-gradient(#f48181, #ffbaba)' });
+					$('#section_header').parent().append('<div id="wrongsessions" class="metadata"></div>');
+					$('#wrongsessions').css({
+						border: '3px solid red',
+						padding: '5px',
+						background: 'linear-gradient(#f48181, #ffbaba)',
+					});
 					$(wrongsessions).each((i, e) => {
 						$('#wrongsessions').append(`<div><a href="${e.url}">Session</a> has the wrong cost (${e.currentcost} should be ${e.correctcost}) (${e.date.toString('d-MMM-yyyy')})<div>`);
 					});
@@ -465,7 +509,9 @@ function ks() {
 				let needsession = false;
 				const ec = JSON.parse(response.responseText)[0].errorCode;
 				console.log(ec);
-				if (ec === 'INVALID_SESSION_ID') { needsession = true; }
+				if (ec === 'INVALID_SESSION_ID') {
+					needsession = true;
+				}
 				if (needsession) {
 					getkey(ks);
 				}
