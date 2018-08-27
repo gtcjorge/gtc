@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      3.1
+// @version      3.2
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -9,6 +9,7 @@
 // @include      https://na8.salesforce.com/00T/e?who_id=*
 // @include      https://na8.salesforce.com/home/home.jsp
 // @include      https://na8.salesforce.com/01ZC00000013c3z
+// @include      https://na8.salesforce.com/*
 // @require      https://code.jquery.com/jquery-3.1.1.slim.min.js
 // @require      http://globaltrainingcenter.com/date.js
 // @updateURL    https://github.com/gtcjorge/gtc/raw/master/gtctoolkit.user.js
@@ -253,6 +254,28 @@ function insertclass(classo) {
 	sfsubject(classo);
 }
 
+function getkey(callback) {
+	if (requestedpassword === true) return;
+	console.log('getting key');
+	GM_xmlhttpRequest({
+		method: 'POST',
+		url: 'https://login.salesforce.com/services/oauth2/token',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		},
+		data: `grant_type=password&client_id=3MVG9CVKiXR7Ri5oTacFEDc70dveabo7ofE9G1sr_6XO03Qk1mM9Hq1StahY9EqbOsBhcm3PEb6FzhkW3HVKz&client_secret=4221779451511459233&username=team%40globaltrainingcenter.com&password=${pw}`,
+		onload(response) {
+			// console.log(response);
+			requestedpassword = true;
+			const jr = JSON.parse(response.responseText);
+			const token = jr.access_token;
+			console.log(token);
+			GM_setValue('token', token);
+			callback();
+		},
+	});
+}
+
 function go() {
 	const id = $('#who_id').attr('value');
 
@@ -439,28 +462,6 @@ function go() {
 	injected = 1;
 }
 
-function getkey(callback) {
-	if (requestedpassword === true) return;
-	console.log('getting key');
-	GM_xmlhttpRequest({
-		method: 'POST',
-		url: 'https://login.salesforce.com/services/oauth2/token',
-		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded',
-		},
-		data: `grant_type=password&client_id=3MVG9CVKiXR7Ri5oTacFEDc70dveabo7ofE9G1sr_6XO03Qk1mM9Hq1StahY9EqbOsBhcm3PEb6FzhkW3HVKz&client_secret=4221779451511459233&username=team%40globaltrainingcenter.com&password=${pw}`,
-		onload(response) {
-			// console.log(response);
-			requestedpassword = true;
-			const jr = JSON.parse(response.responseText);
-			const token = jr.access_token;
-			console.log(token);
-			GM_setValue('token', token);
-			callback();
-		},
-	});
-}
-
 function ks() {
 	// console.log(tok);
 	const today = Date.today();
@@ -529,7 +530,12 @@ $(document).ready(() => {
 		console.log(GM_getValue('token'));
 		watermark();
 		ks();
+	} else if ($("input[title='New Task']").length === 1) {
+		const e = $("input[title='New Task']").eq(0);
+		$('#topButtonRow').prepend(e.clone(true).addClass('btnImportant'));
 	} else {
-		go();
+		const regex = /who_id/gm;
+		const res = regex.test(window.location.href);
+		if (res) go();
 	}
 });
