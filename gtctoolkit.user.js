@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      3.0
+// @version      3.1
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -21,6 +21,7 @@
 // @grant GM_getValue
 // ==/UserScript==
 
+const pw = '4egtc550';
 const classesfound = [];
 const dict = [];
 dict['Export to Canada'] = 'Export to Canada';
@@ -447,7 +448,7 @@ function getkey(callback) {
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
 		},
-		data: 'grant_type=password&client_id=3MVG9CVKiXR7Ri5oTacFEDc70dveabo7ofE9G1sr_6XO03Qk1mM9Hq1StahY9EqbOsBhcm3PEb6FzhkW3HVKz&client_secret=4221779451511459233&username=team%40globaltrainingcenter.com&password=4egtc550',
+		data: `grant_type=password&client_id=3MVG9CVKiXR7Ri5oTacFEDc70dveabo7ofE9G1sr_6XO03Qk1mM9Hq1StahY9EqbOsBhcm3PEb6FzhkW3HVKz&client_secret=4221779451511459233&username=team%40globaltrainingcenter.com&password=${pw}`,
 		onload(response) {
 			// console.log(response);
 			requestedpassword = true;
