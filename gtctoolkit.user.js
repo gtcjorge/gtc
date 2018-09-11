@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      3.2
+// @version      3.3
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -278,7 +278,7 @@ function getkey(callback) {
 
 function go() {
 	const id = $('#who_id').attr('value');
-
+	const me = this;
 	const urlr = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Name from pymt__Shopping_Cart_Item__c WHERE pymt__Contact__c = '${id}' AND CreatedDate = LAST_N_DAYS:60`;
 	const urlcontactquery = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Order_Source__c from Contact WHERE Id = '${id}'`;
 
@@ -373,7 +373,7 @@ function go() {
 				$(json.records).each((index, item) => {
 					let name = item.Name.split('-')[0];
 					const date = item.Name.split('-')[1];
-					if (name.split('Session: ')[1])[, name] = name.split('Session: ');
+					if (name.split('Session: ')[1]) [, name] = name.split('Session: ');
 					console.log(name);
 					const classo = {
 						name,
@@ -394,7 +394,7 @@ function go() {
 					needsession = true;
 				}
 				if (needsession) {
-					getkey(go);
+					getkey(me);
 				}
 			}
 		},
@@ -464,12 +464,13 @@ function go() {
 
 function ks() {
 	// console.log(tok);
+	const me = this;
 	const today = Date.today();
 	const todayplus30 = today.clone().addDays(30);
 	// console.log({ today, todayplus30 });
 	GM_xmlhttpRequest({
 		method: 'get',
-		url: 'https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Id, evt__Start__c, evt__Session_Fee__c from evt__Session__c WHERE evt__Start__c > TODAY AND evt__Start__c <= NEXT_N_MONTHS:2 order by evt__Start__c asc',
+		url: 'https://na8.salesforce.com/services/data/v42.0/query/?q=SELECT Id, Name, evt__Start__c, evt__Session_Fee__c from evt__Session__c WHERE evt__Start__c > TODAY AND evt__Start__c <= NEXT_N_MONTHS:2 order by evt__Start__c asc',
 		headers: {
 			Authorization: `OAuth ${GM_getValue('token')}`,
 			'Content-Type': 'application/json',
@@ -482,6 +483,8 @@ function ks() {
 					// console.log(item);
 					const completeurl = `https://na8.salesforce.com/${item.Id}`;
 					const session = {
+						id: item.Id,
+						name: item.Name,
 						url: completeurl,
 						date: Date.parse(item.evt__Start__c.split('T')[0]),
 						currentcost: item.evt__Session_Fee__c,
@@ -502,20 +505,38 @@ function ks() {
 						background: 'linear-gradient(#f48181, #ffbaba)',
 					});
 					$(wrongsessions).each((i, e) => {
-						$('#wrongsessions').append(`<div><a href="${e.url}">Session</a> has the wrong cost (${e.currentcost} should be ${e.correctcost}) (${e.date.toString('d-MMM-yyyy')})<div>`);
+						GM_xmlhttpRequest({
+							method: 'PATCH',
+							headers: {
+								Authorization: `OAuth ${GM_getValue('token')}`,
+								'Content-Type': 'application/json',
+							},
+							url: `https://na8.salesforce.com/services/data/v42.0/sobjects/evt__Session__c/${e.id}`,
+							data: JSON.stringify({
+								evt__Session_Fee__c: e.correctcost,
+							}),
+							onload(a) {
+								console.log(a);
+								if (a && a.status === 204) {
+									$('#wrongsessions').append(`<div><a href="${e.url}">${e.name}</a> had the wrong cost (${e.currentcost} was updated to ${e.correctcost}) (${e.date.toString('d-MMM-yyyy')})<div>`);
+								}
+							},
+						});
 					});
+				} else {
+					console.log('no events with wrong pricing :)');
 				}
 			} else {
-				alert(`Error: ${response.responseText}`);
 				console.error(response.responseText);
 				let needsession = false;
 				const ec = JSON.parse(response.responseText)[0].errorCode;
 				console.log(ec);
 				if (ec === 'INVALID_SESSION_ID') {
+					alert(`Error: ${response.responseText}`);
 					needsession = true;
 				}
 				if (needsession) {
-					getkey(ks);
+					getkey(me);
 				}
 			}
 		},
@@ -530,8 +551,8 @@ $(document).ready(() => {
 		console.log(GM_getValue('token'));
 		watermark();
 		ks();
-	} else if ($("input[title='New Task']").length === 1) {
-		const e = $("input[title='New Task']").eq(0);
+	} else if ($('input[title="New Task"]').length === 1) {
+		const e = $('input[title="New Task"]').eq(0);
 		$('#topButtonRow').prepend(e.clone(true).addClass('btnImportant'));
 	} else {
 		const regex = /who_id/gm;
