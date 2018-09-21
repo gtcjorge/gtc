@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      3.2
+// @version      3.4
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -25,6 +25,7 @@
 const pw = '4egtc550';
 const classesfound = [];
 const dict = [];
+const debug = true;
 dict['Export to Canada'] = 'Export to Canada';
 dict['Export Canada'] = 'Export to Canada';
 dict['Export to Mexico'] = 'Export to Mexico';
@@ -103,6 +104,7 @@ function fTime(halforfull, type) {
 }
 
 function sfsubject(co) {
+	// console.log(co.paymentid);
 	const c = [];
 	c[0] = co.Venue;
 	c[1] = co['Event Title'];
@@ -248,6 +250,35 @@ function sfsubject(co) {
 	$('#00N80000004fJvF').val(price).css('border', '3px solid green');
 	$('#00N80000004fJvU').val(registrationfield).css('border', '3px solid green');
 	$('#tsk4').val(datefield).css('border', '3px solid green');
+
+
+	// const paymentid = co.paymentid;
+	const paymentid = co.paymentid;
+	console.log(`[+] requesting order source from payment ${paymentid}`);
+	GM_xmlhttpRequest({
+		method: 'GET',
+		headers: {
+			Authorization: `OAuth ${GM_getValue('token')}`,
+			'Content-Type': 'application/json',
+		},
+		url: `https://na8.salesforce.com/services/data/v43.0/sobjects/pymt__PaymentX__c/${paymentid}`,
+		onload(response3) {
+			// console.log(response3);
+			if (response3.status === 200) {
+				// console.log(response2.responseText);
+				const json = JSON.parse(response3.responseText);
+
+				let tsource = json.Source__c;
+				if (tsource === 'CoWorker') tsource = 'Co-Worker';
+				if (tsource === 'WebSearch') tsource = 'Web Search';
+
+				$('option').filter((i, e) => $(e).val() === tsource).prop('selected', true).parent()
+					.css('border', '3px solid green');
+			} else {
+				console.error(response3.responseText);
+			}
+		},
+	});
 }
 
 function insertclass(classo) {
@@ -271,6 +302,7 @@ function getkey(callback) {
 			const token = jr.access_token;
 			console.log(token);
 			GM_setValue('token', token);
+			console.log(`got new key[${token}]`);
 			callback();
 		},
 	});
@@ -278,38 +310,11 @@ function getkey(callback) {
 
 function go() {
 	const id = $('#who_id').attr('value');
-
-	const urlr = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Name from pymt__Shopping_Cart_Item__c WHERE pymt__Contact__c = '${id}' AND CreatedDate = LAST_N_DAYS:60`;
-	const urlcontactquery = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Order_Source__c from Contact WHERE Id = '${id}'`;
-
-	// bring in order source
-	GM_xmlhttpRequest({
-		method: 'get',
-		url: urlcontactquery,
-		headers: {
-			Authorization: `OAuth ${GM_getValue('token')}`,
-			'Content-Type': 'application/json',
-		},
-		onload(response) {
-			// console.log(response);
-			if (response.status === 200) {
-				const json = JSON.parse(response.responseText);
-				// console.log(json);
-				if (json && json.totalSize === 1) {
-					const source = json.records[0].Order_Source__c;
-					// console.log(source);
-					let tsource = source;
-					if (source === 'CoWorker') tsource = 'Co-Worker';
-					if (source === 'WebSearch') tsource = 'Web Search';
-					$('option').filter((i, e) => $(e).val() === tsource).prop('selected', true).parent()
-						.css('border', '3px solid green');
-				}
-			}
-		},
-	});
-	// finish bring in order source
+	const me = this;
+	const urlr = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Name,pymt__Payment__c from pymt__Shopping_Cart_Item__c WHERE pymt__Contact__c = '${id}' AND CreatedDate = LAST_N_DAYS:60`;
 
 	// get shopping cart items
+	console.log('[+] getting shopping cart items from salesforce');
 	GM_xmlhttpRequest({
 		method: 'get',
 		url: urlr,
@@ -322,6 +327,9 @@ function go() {
 				$('#head_1_ep').next().find('tbody').prepend('<tr id=\'itemsrow\'><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Items</label></td><td class=\'dataCol col02\'><select id=\'classes\'></select></td></tr>');
 				$('#classes').append('<option id=\'blank\'></option>');
 				$('#classes').on('change', (k) => {
+					const selected = $(k.target).find(':selected');
+					const payment = selected.attr('payment');
+
 					if (!$(k.target).find(':selected').val() || $(k.target).find(':selected').val() === '') {
 						return;
 					}
@@ -331,7 +339,8 @@ function go() {
 						cdate = `${splits[0]} ${splits[1]}`;
 					}
 					const classselected = `${dict[$(k.target).find(':selected').val().split(' - ')[0]]} - ${cdate}`;
-					console.log(`http://www.globaltrainingcenter.com/classapi.php?sf=${classselected}`);
+					// console.log(`http://www.globaltrainingcenter.com/classapi.php?sf=${classselected}`);
+					console.log('[+] requesting matching class from gtc server');
 					GM_xmlhttpRequest({
 						method: 'GET',
 						url: `http://www.globaltrainingcenter.com/classapi.php?sf=${classselected}`,
@@ -344,6 +353,7 @@ function go() {
 									alert('No results please enter manually');
 								}
 								if (json.length === 1) {
+									json[0].paymentid = payment;
 									insertclass(json[0]);
 								}
 								if (json.length > 1) {
@@ -351,11 +361,15 @@ function go() {
 									$('#itemsrow').after('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Classes found</label></td><td class=\'dataCol col02\'><select id=\'classesfound\'></select></td></tr>');
 									$('#classesfound').append('<option id=\'blank\'></option>');
 									$('#classesfound').on('change', (i) => {
+										// var paymentid = selected.attr("payment");
+										// console.log(payment);
+
 										const selectbox = $(i.target);
 										if (!$(selectbox).find(':selected').val() || $(selectbox).find(':selected').val() === '') {
 											return;
 										}
 										const idfound = $(selectbox).find(':selected').attr('id');
+										json[idfound].paymentid = payment;
 										insertclass(json[idfound]);
 									});
 									for (let x = 0; x < json.length; x += 1) {
@@ -370,10 +384,12 @@ function go() {
 					});
 				});
 				const json = JSON.parse(response.responseText);
+
 				$(json.records).each((index, item) => {
+					const paymentid = item.pymt__Payment__c;
 					let name = item.Name.split('-')[0];
 					const date = item.Name.split('-')[1];
-					if (name.split('Session: ')[1])[, name] = name.split('Session: ');
+					if (name.split('Session: ')[1]) [, name] = name.split('Session: ');
 					console.log(name);
 					const classo = {
 						name,
@@ -381,7 +397,7 @@ function go() {
 					};
 					if (dict[name]) {
 						classes[index] = classo;
-						$('#classes').append(`<option id='${index}'>${classo.name} - ${classo.date}</option>`);
+						$('#classes').append(`<option payment='${paymentid}' id='${index}'>${classo.name} - ${classo.date}</option>`);
 					}
 				});
 			} else {
@@ -394,7 +410,7 @@ function go() {
 					needsession = true;
 				}
 				if (needsession) {
-					getkey(go);
+					getkey(me);
 				}
 			}
 		},
@@ -405,6 +421,7 @@ function go() {
 
 	$('#otherid').on('change', (k) => {
 		const otherid = $(k.target).val().trim();
+		console.log('[+] requesting class info from salesforce');
 		GM_xmlhttpRequest({
 			method: 'GET',
 			headers: {
@@ -427,6 +444,7 @@ function go() {
 						// https://na8.salesforce.com/services/data/v38.0/sobjects/Task/00TC000005D1RLjMAN
 						const id2 = $('#tasksfromotherid option:selected').attr('id');
 						const tok = GM_getValue('token');
+						console.log('[+] requesting tasks from other contact');
 						GM_xmlhttpRequest({
 							method: 'GET',
 							headers: {
@@ -464,12 +482,14 @@ function go() {
 
 function ks() {
 	// console.log(tok);
+	const me = this;
 	const today = Date.today();
 	const todayplus30 = today.clone().addDays(30);
-	// console.log({ today, todayplus30 });
+	console.log({ today, todayplus30 });
+	console.log('[+] requesting events with discount out of date');
 	GM_xmlhttpRequest({
 		method: 'get',
-		url: 'https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Id, evt__Start__c, evt__Session_Fee__c from evt__Session__c WHERE evt__Start__c > TODAY AND evt__Start__c <= NEXT_N_MONTHS:2 order by evt__Start__c asc',
+		url: 'https://na8.salesforce.com/services/data/v42.0/query/?q=SELECT Id, Name, evt__Start__c, evt__Session_Fee__c from evt__Session__c WHERE evt__Start__c > TODAY AND evt__Start__c <= NEXT_N_MONTHS:2 order by evt__Start__c asc',
 		headers: {
 			Authorization: `OAuth ${GM_getValue('token')}`,
 			'Content-Type': 'application/json',
@@ -482,6 +502,8 @@ function ks() {
 					// console.log(item);
 					const completeurl = `https://na8.salesforce.com/${item.Id}`;
 					const session = {
+						id: item.Id,
+						name: item.Name,
 						url: completeurl,
 						date: Date.parse(item.evt__Start__c.split('T')[0]),
 						currentcost: item.evt__Session_Fee__c,
@@ -502,20 +524,39 @@ function ks() {
 						background: 'linear-gradient(#f48181, #ffbaba)',
 					});
 					$(wrongsessions).each((i, e) => {
-						$('#wrongsessions').append(`<div><a href="${e.url}">Session</a> has the wrong cost (${e.currentcost} should be ${e.correctcost}) (${e.date.toString('d-MMM-yyyy')})<div>`);
+						console.log('[+] patching wrong discount on salesforce server');
+						GM_xmlhttpRequest({
+							method: 'PATCH',
+							headers: {
+								Authorization: `OAuth ${GM_getValue('token')}`,
+								'Content-Type': 'application/json',
+							},
+							url: `https://na8.salesforce.com/services/data/v42.0/sobjects/evt__Session__c/${e.id}`,
+							data: JSON.stringify({
+								evt__Session_Fee__c: e.correctcost,
+							}),
+							onload(a) {
+								console.log(a);
+								if (a && a.status === 204) {
+									$('#wrongsessions').append(`<div><a href="${e.url}">${e.name}</a> had the wrong cost (${e.currentcost} was updated to ${e.correctcost}) (${e.date.toString('d-MMM-yyyy')})<div>`);
+								}
+							},
+						});
 					});
+				} else {
+					console.log('no events with wrong pricing :)');
 				}
 			} else {
-				alert(`Error: ${response.responseText}`);
 				console.error(response.responseText);
 				let needsession = false;
 				const ec = JSON.parse(response.responseText)[0].errorCode;
 				console.log(ec);
 				if (ec === 'INVALID_SESSION_ID') {
+					if (debug) alert(`Error: ${response.responseText}`);
 					needsession = true;
 				}
 				if (needsession) {
-					getkey(ks);
+					getkey(me);
 				}
 			}
 		},
@@ -530,8 +571,8 @@ $(document).ready(() => {
 		console.log(GM_getValue('token'));
 		watermark();
 		ks();
-	} else if ($("input[title='New Task']").length === 1) {
-		const e = $("input[title='New Task']").eq(0);
+	} else if ($('input[title="New Task"]').length === 1) {
+		const e = $('input[title="New Task"]').eq(0);
 		$('#topButtonRow').prepend(e.clone(true).addClass('btnImportant'));
 	} else {
 		const regex = /who_id/gm;
