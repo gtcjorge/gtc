@@ -1,11 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-<<<<<<< HEAD
 // @version      3.4
-=======
-// @version      3.3
->>>>>>> f1e4b5afb4ca64d6f02a851a42a808baf87d1744
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -257,7 +253,8 @@ function sfsubject(co) {
 
 
 	// const paymentid = co.paymentid;
-	const paymentid = co.paymentid;
+	// const paymentid = co.paymentid;
+	const { paymentid } = co;
 	console.log(`[+] requesting order source from payment ${paymentid}`);
 	GM_xmlhttpRequest({
 		method: 'GET',
@@ -315,39 +312,7 @@ function getkey(callback) {
 function go() {
 	const id = $('#who_id').attr('value');
 	const me = this;
-<<<<<<< HEAD
 	const urlr = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Name,pymt__Payment__c from pymt__Shopping_Cart_Item__c WHERE pymt__Contact__c = '${id}' AND CreatedDate = LAST_N_DAYS:60`;
-=======
-	const urlr = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Name from pymt__Shopping_Cart_Item__c WHERE pymt__Contact__c = '${id}' AND CreatedDate = LAST_N_DAYS:60`;
-	const urlcontactquery = `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Order_Source__c from Contact WHERE Id = '${id}'`;
-
-	// bring in order source
-	GM_xmlhttpRequest({
-		method: 'get',
-		url: urlcontactquery,
-		headers: {
-			Authorization: `OAuth ${GM_getValue('token')}`,
-			'Content-Type': 'application/json',
-		},
-		onload(response) {
-			// console.log(response);
-			if (response.status === 200) {
-				const json = JSON.parse(response.responseText);
-				// console.log(json);
-				if (json && json.totalSize === 1) {
-					const source = json.records[0].Order_Source__c;
-					// console.log(source);
-					let tsource = source;
-					if (source === 'CoWorker') tsource = 'Co-Worker';
-					if (source === 'WebSearch') tsource = 'Web Search';
-					$('option').filter((i, e) => $(e).val() === tsource).prop('selected', true).parent()
-						.css('border', '3px solid green');
-				}
-			}
-		},
-	});
-	// finish bring in order source
->>>>>>> f1e4b5afb4ca64d6f02a851a42a808baf87d1744
 
 	// get shopping cart items
 	console.log('[+] getting shopping cart items from salesforce');
@@ -560,10 +525,7 @@ function ks() {
 						background: 'linear-gradient(#f48181, #ffbaba)',
 					});
 					$(wrongsessions).each((i, e) => {
-<<<<<<< HEAD
 						console.log('[+] patching wrong discount on salesforce server');
-=======
->>>>>>> f1e4b5afb4ca64d6f02a851a42a808baf87d1744
 						GM_xmlhttpRequest({
 							method: 'PATCH',
 							headers: {
@@ -591,11 +553,7 @@ function ks() {
 				const ec = JSON.parse(response.responseText)[0].errorCode;
 				console.log(ec);
 				if (ec === 'INVALID_SESSION_ID') {
-<<<<<<< HEAD
 					if (debug) alert(`Error: ${response.responseText}`);
-=======
-					alert(`Error: ${response.responseText}`);
->>>>>>> f1e4b5afb4ca64d6f02a851a42a808baf87d1744
 					needsession = true;
 				}
 				if (needsession) {
