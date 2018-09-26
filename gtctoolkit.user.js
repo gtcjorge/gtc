@@ -174,7 +174,7 @@ function sfsubject(co) {
 		classname = 'Import 201';
 	} else if (c[1] === 'Road to CTPAT Certification') {
 		halforfull = 'half';
-		classname = 'C-TPAT';
+		classname = 'CTPAT';
 	} else if (c[1] === 'Export to Mexico') {
 		halforfull = 'half';
 		classname = 'Mexico';
