@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      3.4
+// @version      3.5
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -43,7 +43,7 @@ dict['Int\'l Logistics'] = 'International Logistics';
 dict['Letters of Credit'] = 'Letters of Credit';
 dict['Letters Credit'] = 'Letters of Credit';
 dict['Making C-TPAT Work for You'] = 'Road to C-TPAT Certification';
-dict.CTPAT = 'Road to C-TPAT Certification';
+dict.CTPAT = 'Road to CTPAT Certification';
 dict['NAFTA Rules of Origin'] = 'NAFTA Rules of Origin';
 dict.NAFTA = 'NAFTA Rules of Origin';
 dict['Tariff Classification'] = 'Tariff Classification';
@@ -172,7 +172,7 @@ function sfsubject(co) {
 	} else if (c[1] === 'Importing 201') {
 		halforfull = 'full';
 		classname = 'Import 201';
-	} else if (c[1] === 'Road to C-TPAT Certification') {
+	} else if (c[1] === 'Road to CTPAT Certification') {
 		halforfull = 'half';
 		classname = 'C-TPAT';
 	} else if (c[1] === 'Export to Mexico') {
@@ -189,29 +189,28 @@ function sfsubject(co) {
 
 	$('#tsk5').val(`${cityname} ${classname}`).css('border', '3px solid green');
 
-
 	switch (c[1]) {
-	case 'Import Audit Compliance':
-		description = 'Import Focused Assessment';
-		break;
-	case 'Incoterms':
-		description = 'International Terms';
-		break;
-	case 'Incoterms Strategies':
-		description = 'International Terms Strategies';
-		break;
-	case 'Letters of Credit':
-		description = 'International Letters of Credit';
-		break;
-	case 'Road to C-TPAT Certification':
-		description = 'Road to C-TPAT';
-		break;
-	case 'TPP':
-		description = 'Trans Pacific Partnership';
-		break;
-	default:
-		[, description] = c;
-		break;
+		case 'Import Audit Compliance':
+			description = 'Import Focused Assessment';
+			break;
+		case 'Incoterms':
+			description = 'International Terms';
+			break;
+		case 'Incoterms Strategies':
+			description = 'International Terms Strategies';
+			break;
+		case 'Letters of Credit':
+			description = 'International Letters of Credit';
+			break;
+		case 'Road to CTPAT Certification':
+			description = 'Road to C-TPAT';
+			break;
+		case 'TPP':
+			description = 'Trans Pacific Partnership';
+			break;
+		default:
+			[, description] = c;
+			break;
 	}
 
 	const classdate = Date.parse(c[5]);
@@ -286,7 +285,7 @@ function insertclass(classo) {
 	sfsubject(classo);
 }
 
-function getkey(callback) {
+function getkey(gtc_callback) {
 	if (requestedpassword === true) return;
 	console.log('getting key');
 	GM_xmlhttpRequest({
@@ -304,7 +303,7 @@ function getkey(callback) {
 			console.log(token);
 			GM_setValue('token', token);
 			console.log(`got new key[${token}]`);
-			callback();
+			gtc_callback();
 		},
 	});
 }
