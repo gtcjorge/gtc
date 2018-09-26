@@ -190,27 +190,27 @@ function sfsubject(co) {
 	$('#tsk5').val(`${cityname} ${classname}`).css('border', '3px solid green');
 
 	switch (c[1]) {
-		case 'Import Audit Compliance':
-			description = 'Import Focused Assessment';
-			break;
-		case 'Incoterms':
-			description = 'International Terms';
-			break;
-		case 'Incoterms Strategies':
-			description = 'International Terms Strategies';
-			break;
-		case 'Letters of Credit':
-			description = 'International Letters of Credit';
-			break;
-		case 'Road to CTPAT Certification':
-			description = 'Road to C-TPAT';
-			break;
-		case 'TPP':
-			description = 'Trans Pacific Partnership';
-			break;
-		default:
-			[, description] = c;
-			break;
+	case 'Import Audit Compliance':
+		description = 'Import Focused Assessment';
+		break;
+	case 'Incoterms':
+		description = 'International Terms';
+		break;
+	case 'Incoterms Strategies':
+		description = 'International Terms Strategies';
+		break;
+	case 'Letters of Credit':
+		description = 'International Letters of Credit';
+		break;
+	case 'Road to CTPAT Certification':
+		description = 'Road to C-TPAT';
+		break;
+	case 'TPP':
+		description = 'Trans Pacific Partnership';
+		break;
+	default:
+		[, description] = c;
+		break;
 	}
 
 	const classdate = Date.parse(c[5]);
@@ -285,7 +285,7 @@ function insertclass(classo) {
 	sfsubject(classo);
 }
 
-function getkey(gtc_callback) {
+function getkey(gtcCb) {
 	if (requestedpassword === true) return;
 	console.log('getting key');
 	GM_xmlhttpRequest({
@@ -303,7 +303,7 @@ function getkey(gtc_callback) {
 			console.log(token);
 			GM_setValue('token', token);
 			console.log(`got new key[${token}]`);
-			gtc_callback();
+			gtcCb();
 		},
 	});
 }
