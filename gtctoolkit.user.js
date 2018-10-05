@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      3.5.1
+// @version      3.6
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -25,7 +25,7 @@
 const pw = '4egtc550';
 const classesfound = [];
 const dict = [];
-const debug = true;
+const debug = false;
 dict['Export to Canada'] = 'Export to Canada';
 dict['Export Canada'] = 'Export to Canada';
 dict['Export to Mexico'] = 'Export to Mexico';
@@ -52,6 +52,7 @@ dict['Trans Pacific Partnership Dec 15....NEW'] = 'TPP';
 dict['Importing 201'] = 'Importing 201';
 dict['Import 201'] = 'Importing 201';
 dict.Tariff = 'Tariff Classification';
+dict['Learning USMCA'] = 'Learning USCMA';
 
 const classes = [];
 const instructors = [];
@@ -339,69 +340,112 @@ function go() {
 						cdate = `${splits[0]} ${splits[1]}`;
 					}
 					const classselected = `${dict[$(k.target).find(':selected').val().split(' - ')[0]]} - ${cdate}`;
-					// console.log(`http://www.globaltrainingcenter.com/classapi.php?sf=${classselected}`);
-					console.log('[+] requesting matching class from gtc server');
-					GM_xmlhttpRequest({
-						method: 'GET',
-						url: `http://www.globaltrainingcenter.com/classapi.php?sf=${classselected}`,
-						onload(response2) {
-							if (response2.status === 200) {
+					if (classselected === 'Learning USCMA - Oct 11') {
+						$('#tsk5').val('Webinar USCMA').css('border', '3px solid green');
+						$("option[value='Learning USMCA']").attr('selected', 'selected').parent().css('border', '3px solid green');
+						$('input#00N80000004fJvF').val('195').css('border', '3px solid green');
+						$("option[value='JG']").attr('selected', 'selected').parent().css('border', '3px solid green');
+						const today = Date.parse('today').toString('MM/d/yyyy');
+						// alert(today);
+
+						$("input[name='00N80000004fJvU']").val(today).css('border', '3px solid green');
+
+						$('#tsk4').val('10/11/2018').css('border', '3px solid green');
+						$("option[value='9:00am-12:30pm CST']").attr('selected', 'selected').parent().css('border', '3px solid green');
+
+
+						GM_xmlhttpRequest({
+							method: 'GET',
+							headers: {
+								Authorization: `OAuth ${GM_getValue('token')}`,
+								'Content-Type': 'application/json',
+							},
+							url: `https://na8.salesforce.com/services/data/v43.0/sobjects/pymt__PaymentX__c/${payment}`,
+							onload(response3) {
+								// console.log(response3);
+								if (response3.status === 200) {
+									// console.log(response2.responseText);
+									const json = JSON.parse(response3.responseText);
+
+									let tsource = json.Source__c;
+									if (tsource === 'CoWorker') tsource = 'Co-Worker';
+									if (tsource === 'WebSearch') tsource = 'Web Search';
+
+									$('option').filter((i, e) => $(e).val() === tsource).prop('selected', true).parent()
+										.css('border', '3px solid green');
+								} else {
+									console.error(response3.responseText);
+								}
+							},
+						});
+					} else {
+						console.log('[+] requesting matching class from gtc server');
+						// console.log(`http://www.globaltrainingcenter.com/classapi.php?sf=${classselected}`);
+						GM_xmlhttpRequest({
+							method: 'GET',
+							url: `http://www.globaltrainingcenter.com/classapi.php?sf=${classselected}`,
+							onload(response2) {
+								if (response2.status === 200) {
 								// console.log(response2.responseText);
-								const json = JSON.parse(response2.responseText);
-								// console.log(json);
-								if (!json.length || json.length < 1) {
-									alert('No results please enter manually');
-								}
-								if (json.length === 1) {
-									json[0].paymentid = payment;
-									insertclass(json[0]);
-								}
-								if (json.length > 1) {
+									const json = JSON.parse(response2.responseText);
 									// console.log(json);
-									$('#itemsrow').after('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Classes found</label></td><td class=\'dataCol col02\'><select id=\'classesfound\'></select></td></tr>');
-									$('#classesfound').append('<option id=\'blank\'></option>');
-									$('#classesfound').on('change', (i) => {
+									if (!json.length || json.length < 1) {
+										alert('No results please enter manually');
+									}
+									if (json.length === 1) {
+										json[0].paymentid = payment;
+										insertclass(json[0]);
+									}
+									if (json.length > 1) {
+									// console.log(json);
+										$('#itemsrow').after('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Classes found</label></td><td class=\'dataCol col02\'><select id=\'classesfound\'></select></td></tr>');
+										$('#classesfound').append('<option id=\'blank\'></option>');
+										$('#classesfound').on('change', (i) => {
 										// var paymentid = selected.attr("payment");
 										// console.log(payment);
 
-										const selectbox = $(i.target);
-										if (!$(selectbox).find(':selected').val() || $(selectbox).find(':selected').val() === '') {
-											return;
+											const selectbox = $(i.target);
+											if (!$(selectbox).find(':selected').val() || $(selectbox).find(':selected').val() === '') {
+												return;
+											}
+											const idfound = $(selectbox).find(':selected').attr('id');
+											json[idfound].paymentid = payment;
+											insertclass(json[idfound]);
+										});
+										for (let x = 0; x < json.length; x += 1) {
+											classesfound[x] = json[x];
+											$('#classesfound').append(`<option id='${x}'>${json[x]['Event Title']} - ${json[x].Venue} - ${json[x]['Event Date']}</option>`);
 										}
-										const idfound = $(selectbox).find(':selected').attr('id');
-										json[idfound].paymentid = payment;
-										insertclass(json[idfound]);
-									});
-									for (let x = 0; x < json.length; x += 1) {
-										classesfound[x] = json[x];
-										$('#classesfound').append(`<option id='${x}'>${json[x]['Event Title']} - ${json[x].Venue} - ${json[x]['Event Date']}</option>`);
 									}
+								} else {
+									console.error(response2.responseText);
 								}
-							} else {
-								console.error(response2.responseText);
-							}
-						},
-					});
+							},
+						});
+					}
 				});
 				const json = JSON.parse(response.responseText);
 
 				$(json.records).each((index, item) => {
+					let name;
+					let date;
 					const paymentid = item.pymt__Payment__c;
-					let name = item.Name.split('-')[0];
-					const date = item.Name.split('-')[1];
-					if (name.split('Session: ')[1]) [, name] = name.split('Session: ');
-					console.log(name);
-					const classo = {
-						name,
-						date,
-					};
+					if (item.Name.indexOf('Webinar-Oct 11 (9am-12:30 CT)') !== -1) { // USMCA
+						name = 'Learning USMCA';
+						date = 'Oct 11';
+					} else {
+						[name, date] = item.Name.split('-');
+						if (name.split('Session: ')[1]) [, name] = name.split('Session: ');
+						console.log(name);
+					}
 					if (dict[name]) {
+						const classo = { name, date };
 						classes[index] = classo;
 						$('#classes').append(`<option payment='${paymentid}' id='${index}'>${classo.name} - ${classo.date}</option>`);
 					}
 				});
 			} else {
-				// alert("Error: "+response.responseText);
+			// alert("Error: "+response.responseText);
 				console.error(response.responseText);
 				let needsession = false;
 				const ec = JSON.parse(response.responseText)[0].errorCode;
@@ -431,17 +475,17 @@ function go() {
 			url: `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Id,Subject FROM Task where WhoId = '${otherid}' and Seminar_Price__c != NULL`,
 			onload(response) {
 				if (response.status === 200) {
-					// console.log(response.responseText);
+				// console.log(response.responseText);
 					$('#otherid').parent().parent().next()
 						.before('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Clone Task</label></td><td class=\'dataCol col02\'><select id=\'tasksfromotherid\'><option></option></select></td></tr>');
 					const json = JSON.parse(response.responseText);
 					for (let i = 0; i < json.records.length; i += 1) {
-						// alert(json.records[i].Subject);
+					// alert(json.records[i].Subject);
 						const r = json.records[i];
 						$('#tasksfromotherid').append(`<option id='${r.Id}'>${r.Subject}</option>`);
 					}
 					$('#tasksfromotherid').on('change', () => {
-						// https://na8.salesforce.com/services/data/v38.0/sobjects/Task/00TC000005D1RLjMAN
+					// https://na8.salesforce.com/services/data/v38.0/sobjects/Task/00TC000005D1RLjMAN
 						const id2 = $('#tasksfromotherid option:selected').attr('id');
 						const tok = GM_getValue('token');
 						console.log('[+] requesting tasks from other contact');
@@ -565,9 +609,9 @@ function ks() {
 
 $(document).ready(() => {
 	if (window.location.href === 'https://na8.salesforce.com/home/home.jsp' ||
-		window.location.href === 'http://na8.salesforce.com/home/home.jsp' ||
-		window.location.href === 'http://na8.salesforce.com/01ZC00000013c3z' ||
-		window.location.href === 'https://na8.salesforce.com/01ZC00000013c3z') {
+	window.location.href === 'http://na8.salesforce.com/home/home.jsp' ||
+	window.location.href === 'http://na8.salesforce.com/01ZC00000013c3z' ||
+	window.location.href === 'https://na8.salesforce.com/01ZC00000013c3z') {
 		console.log(GM_getValue('token'));
 		watermark();
 		ks();
