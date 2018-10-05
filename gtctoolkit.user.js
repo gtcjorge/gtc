@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      3.6
+// @version      3.6.1
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -52,7 +52,7 @@ dict['Trans Pacific Partnership Dec 15....NEW'] = 'TPP';
 dict['Importing 201'] = 'Importing 201';
 dict['Import 201'] = 'Importing 201';
 dict.Tariff = 'Tariff Classification';
-dict['Learning USMCA'] = 'Learning USCMA';
+dict['Learning USMCA'] = 'Learning USMCA';
 
 const classes = [];
 const instructors = [];
@@ -340,8 +340,8 @@ function go() {
 						cdate = `${splits[0]} ${splits[1]}`;
 					}
 					const classselected = `${dict[$(k.target).find(':selected').val().split(' - ')[0]]} - ${cdate}`;
-					if (classselected === 'Learning USCMA - Oct 11') {
-						$('#tsk5').val('Webinar USCMA').css('border', '3px solid green');
+					if (classselected === 'Learning USMCA - Oct 11') {
+						$('#tsk5').val('Webinar USMCA').css('border', '3px solid green');
 						$("option[value='Learning USMCA']").attr('selected', 'selected').parent().css('border', '3px solid green');
 						$('input#00N80000004fJvF').val('195').css('border', '3px solid green');
 						$("option[value='JG']").attr('selected', 'selected').parent().css('border', '3px solid green');
