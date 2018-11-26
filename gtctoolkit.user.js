@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GTC Toolkit
 // @namespace    http://www.globaltrainingcenter.com/
-// @version      3.6.1
+// @version      3.6.3
 // @description  Tools
 // @author       Jorge Dominguez
 // @copyright    2017, gtcjorge (https://openuserjs.org/users/gtcjorge)
@@ -22,7 +22,7 @@
 // @grant GM_getValue
 // ==/UserScript==
 
-const pw = '4egtc550';
+const pw = '550e4gtc';
 const classesfound = [];
 const dict = [];
 const debug = false;
@@ -174,7 +174,7 @@ function sfsubject(co) {
 		halforfull = 'full';
 		classname = 'Import 201';
 	} else if (c[1] === 'Road to CTPAT Certification') {
-		halforfull = 'half';
+		halforfull = 'full';
 		classname = 'CTPAT';
 	} else if (c[1] === 'Export to Mexico') {
 		halforfull = 'half';
@@ -301,10 +301,14 @@ function getkey(gtcCb) {
 			requestedpassword = true;
 			const jr = JSON.parse(response.responseText);
 			const token = jr.access_token;
-			console.log(token);
-			GM_setValue('token', token);
-			console.log(`got new key[${token}]`);
-			gtcCb();
+			if (token) {
+				console.log(token);
+				GM_setValue('token', token);
+				console.log(`got new key[${token}]`);
+				gtcCb();
+			} else {
+				alert('Script has outdated password, cant get token');
+			}
 		},
 	});
 }
@@ -386,7 +390,7 @@ function go() {
 							url: `http://www.globaltrainingcenter.com/classapi.php?sf=${classselected}`,
 							onload(response2) {
 								if (response2.status === 200) {
-								// console.log(response2.responseText);
+									// console.log(response2.responseText);
 									const json = JSON.parse(response2.responseText);
 									// console.log(json);
 									if (!json.length || json.length < 1) {
@@ -397,12 +401,12 @@ function go() {
 										insertclass(json[0]);
 									}
 									if (json.length > 1) {
-									// console.log(json);
+										// console.log(json);
 										$('#itemsrow').after('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Classes found</label></td><td class=\'dataCol col02\'><select id=\'classesfound\'></select></td></tr>');
 										$('#classesfound').append('<option id=\'blank\'></option>');
 										$('#classesfound').on('change', (i) => {
-										// var paymentid = selected.attr("payment");
-										// console.log(payment);
+											// var paymentid = selected.attr("payment");
+											// console.log(payment);
 
 											const selectbox = $(i.target);
 											if (!$(selectbox).find(':selected').val() || $(selectbox).find(':selected').val() === '') {
@@ -445,7 +449,7 @@ function go() {
 					}
 				});
 			} else {
-			// alert("Error: "+response.responseText);
+				// alert("Error: "+response.responseText);
 				console.error(response.responseText);
 				let needsession = false;
 				const ec = JSON.parse(response.responseText)[0].errorCode;
@@ -475,17 +479,17 @@ function go() {
 			url: `https://na8.salesforce.com/services/data/v38.0/query/?q=SELECT Id,Subject FROM Task where WhoId = '${otherid}' and Seminar_Price__c != NULL`,
 			onload(response) {
 				if (response.status === 200) {
-				// console.log(response.responseText);
+					// console.log(response.responseText);
 					$('#otherid').parent().parent().next()
 						.before('<tr><td class=\'labelCol\'><label for=\'00N80000004fJvF\'>Clone Task</label></td><td class=\'dataCol col02\'><select id=\'tasksfromotherid\'><option></option></select></td></tr>');
 					const json = JSON.parse(response.responseText);
 					for (let i = 0; i < json.records.length; i += 1) {
-					// alert(json.records[i].Subject);
+						// alert(json.records[i].Subject);
 						const r = json.records[i];
 						$('#tasksfromotherid').append(`<option id='${r.Id}'>${r.Subject}</option>`);
 					}
 					$('#tasksfromotherid').on('change', () => {
-					// https://na8.salesforce.com/services/data/v38.0/sobjects/Task/00TC000005D1RLjMAN
+						// https://na8.salesforce.com/services/data/v38.0/sobjects/Task/00TC000005D1RLjMAN
 						const id2 = $('#tasksfromotherid option:selected').attr('id');
 						const tok = GM_getValue('token');
 						console.log('[+] requesting tasks from other contact');
@@ -609,9 +613,9 @@ function ks() {
 
 $(document).ready(() => {
 	if (window.location.href === 'https://na8.salesforce.com/home/home.jsp' ||
-	window.location.href === 'http://na8.salesforce.com/home/home.jsp' ||
-	window.location.href === 'http://na8.salesforce.com/01ZC00000013c3z' ||
-	window.location.href === 'https://na8.salesforce.com/01ZC00000013c3z') {
+		window.location.href === 'http://na8.salesforce.com/home/home.jsp' ||
+		window.location.href === 'http://na8.salesforce.com/01ZC00000013c3z' ||
+		window.location.href === 'https://na8.salesforce.com/01ZC00000013c3z') {
 		console.log(GM_getValue('token'));
 		watermark();
 		ks();
